@@ -9,7 +9,15 @@
     "chat.tools.terminal.autoApprove": {
         ".specify/scripts/bash/": true,
         ".specify/scripts/powershell/": true,
-        "mkdir": true
+        "mkdir": true,
+        "/^bash \\.specify/scripts/bash/setup-plan\\.sh --json$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^bash \\.specify/scripts/bash/update-agent-context\\.sh copilot$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
     }
 }
 
