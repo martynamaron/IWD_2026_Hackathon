@@ -1,11 +1,11 @@
 <!--
   Sync Impact Report
-  Version change: 1.1.0 → 1.2.0
+  Version change: 1.2.0 → 1.3.0
   Modified principles:
-    - Removed Principle V. Local Backend Server
-    - Renamed Principle VI → V. Local Database (rewritten)
-  Added sections: None
-  Removed sections: Principle V. Local Backend Server
+    - Added Principle VI. Delight & Motion Design
+    - Updated UI & Design Standards with animation requirements
+  Added sections: Principle VI. Delight & Motion Design
+  Removed sections: None
   Templates requiring updates:
     - .specify/templates/plan-template.md ✅ reviewed (no changes needed)
     - .specify/templates/spec-template.md ✅ reviewed (no changes needed)
@@ -134,6 +134,41 @@ with no external server or cloud dependencies.
 prototype fully self-contained and ensures a smooth demo
 with zero setup.
 
+### VI. Delight & Motion Design
+
+The app MUST feel sleek, modern, and delightful to use.
+Every interaction should include purposeful motion that
+reinforces spatial relationships and draws the user's
+attention.
+
+- Screen transitions MUST use animated navigation
+  (e.g., `AnimatedNavHost`, shared-element transitions)
+  — hard cuts between screens are prohibited.
+- Interactive elements (buttons, cards, FABs) MUST include
+  tactile feedback: ripple effects, scale/elevation changes
+  on press, and smooth state transitions.
+- List items MUST animate in on first appearance
+  (e.g., staggered fade + slide) rather than popping in
+  all at once.
+- State changes (loading → content, empty → populated,
+  error → retry) MUST use `AnimatedVisibility`,
+  `AnimatedContent`, or `Crossfade` — never abrupt swaps.
+- Micro-interactions (toggle switches, checkboxes, progress
+  indicators) MUST use `animate*AsState` or `Animatable`
+  for smooth value transitions.
+- Motion MUST follow Material 3 motion guidelines:
+  use `tween` with standard easing curves and durations
+  between 150ms – 500ms. Avoid gratuitous or slow
+  animations that impede usability.
+- Shared-element or container-transform transitions SHOULD
+  be used when navigating between a summary item and its
+  detail screen to reinforce spatial continuity.
+
+**Rationale**: Thoughtful animation transforms a functional
+prototype into an experience that feels polished and
+professional. Motion provides context, guides attention,
+and creates an emotional connection with users.
+
 ## UI & Design Standards
 
 - Every screen MUST render correctly in both portrait and
@@ -146,8 +181,15 @@ with zero setup.
   indicators — never blank screens.
 - Error states MUST display user-friendly messages using
   Material 3 Snackbar or dialog components.
-- Navigation MUST use Jetpack Navigation Compose with a
-  single `NavHost`. Deep-linking support is optional for now.
+- Navigation MUST use Jetpack Navigation Compose with
+  `AnimatedNavHost` and meaningful enter/exit transitions.
+  Deep-linking support is optional for now.
+- All visual state changes MUST be animated. Static,
+  instantaneous UI updates are considered a defect unless
+  the change is imperceptible to the user.
+- Elevation and shadow animations SHOULD accompany
+  interactive surface changes (e.g., card lift on drag,
+  FAB expansion).
 
 ## Development Workflow
 
@@ -176,4 +218,4 @@ decisions in BioGraphApp. When in doubt, refer here.
 - All code contributions MUST comply with these principles.
   Non-compliance MUST be flagged and resolved before merge.
 
-**Version**: 1.2.0 | **Ratified**: 2026-03-12 | **Last Amended**: 2026-03-12
+**Version**: 1.3.0 | **Ratified**: 2026-03-12 | **Last Amended**: 2026-03-12
