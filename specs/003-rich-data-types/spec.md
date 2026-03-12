@@ -81,7 +81,7 @@ As a user, I want to change the existing "Mood" data type (currently a toggle) i
 
 **Why this priority**: This is an edit to an existing data type. It builds on the scale creation story and has higher priority than exercise retrofit because mood is a more universally used tracker.
 
-**Independent Test**: Can be tested by opening the edit screen for the Mood data type (existing-user path), changing its input type to Scale with a maximum of 5, saving, and confirming the day panel now shows a scale selector instead of a toggle. Historical entries for mood should be migrated to "not recorded". For fresh-install users, Mood already appears as Scale after onboarding.
+**Independent Test**: Can be tested by opening the edit screen for the Mood data type (existing-user path), changing its input type to Scale (fixed 0–5 range), saving, and confirming the day panel now shows a scale selector instead of a toggle. Historical entries for mood should be migrated to unrecorded. For fresh-install users, Mood already appears as Scale after onboarding.
 
 **Acceptance Scenarios**:
 
@@ -128,19 +128,13 @@ As a user, I want to freely choose Toggle, Scale, or Multiple Choice when creati
 
 ### Edge Cases
 
-- **Type change with extensive history**: Changing a data type from Toggle to Scale or Multiple Choice resets all historical entries for that type to "not recorded". The warning dialog must state the number of historical entries that will be affected.
+- **Type change with extensive history**: Changing a data type from Toggle to Scale or Multiple Choice resets all historical entries for that type to unrecorded. The warning dialog must state the number of historical entries that will be affected.
 - **Multiple choice with duplicate options**: If a user adds two options with the same emoji and label, the app rejects the duplicate with an inline validation message.
-- **Scale maximum of 1**: A scale with maximum 1 is effectively binary; the app should allow it but display it as two discrete steps (0 and 1) rather than a slider.
 - **Scale value on calendar indicator**: Days where a scale value has been explicitly set (any integer 0–5) show the data type's emoji in the calendar indicator. Days with a null (unrecorded) state do not.
 - **Multiple choice value on calendar indicator**: Days where one or more options have been selected show the data type's emoji in the calendar indicator; a day with zero options selected does not.
-- **Editing options on an existing multiple choice type**: If the user removes an option that was selected on a previous day, those past entries are migrated to "not recorded" for that data type.
+- **Editing options on an existing multiple choice type**: If the user removes an option that was selected on a previous day, those past entries are migrated to unrecorded for that data type.
 - **Maximum options reached**: When a multiple choice data type already has 10 options, the "Add option" button is disabled with a tooltip explaining the limit.
 - **Empty label**: An option with an emoji but an empty label is rejected with an inline validation message.
-- **Scale value on calendar indicator**: Days where a scale value has been explicitly set (any integer 0–5) show the data type's emoji in the calendar indicator. Days with a null (unrecorded) state do not.
-- **Multiple choice value on calendar indicator**: Days where one or more options have been selected show the data type's emoji in the calendar indicator; a day with zero options selected does not.
-- **Editing options on an existing multiple choice type**: If the user removes an option that was selected on a previous day, those past entries are migrated to "not recorded" for that data type.
-- **Empty label**: An option with an emoji but an empty label is rejected with an inline validation message.
-- **Scale maximum > 10**: The app allows it but warns the user that a large scale may be hard to interact with on a small screen.
 - **Re-editing a non-Toggle type**: When the user opens the edit screen for a Scale or Multiple Choice data type, the input type field is shown as read-only or hidden; no option to change the type is present, preventing accidental migrations or re-migrations.
 
 ## Requirements *(mandatory)*

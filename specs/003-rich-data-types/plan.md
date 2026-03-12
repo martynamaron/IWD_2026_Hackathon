@@ -82,9 +82,9 @@ BioGraphApp/app/src/main/java/com/martynamaron/biograph/
 │   │   ├── MultipleChoiceOptionDao.kt                   # NEW
 │   │   └── MultiChoiceSelectionDao.kt                   # NEW
 │   └── repository/
-│       ├── DataTypeRepository.kt                        # MODIFIED — + migrateToScale/migrateToMultipleChoice
+│       ├── DataTypeRepository.kt                        # MODIFIED — + migrateToScale (owns daily_entries deletion via DailyEntryRepository)
 │       ├── DailyEntryRepository.kt                      # MODIFIED — scale-aware save/load
-│       └── MultipleChoiceRepository.kt                  # NEW — option + selection CRUD, migration logic
+│       └── MultipleChoiceRepository.kt                  # NEW — option + selection CRUD, migrateToMultipleChoice (delegates DailyEntry deletion to DailyEntryRepository)
 ├── viewmodel/
 │   ├── DataTypeViewModel.kt                             # MODIFIED — inputType state, option list, migration event
 │   └── CalendarViewModel.kt                             # MODIFIED — scale + multiChoice day-panel save/load
