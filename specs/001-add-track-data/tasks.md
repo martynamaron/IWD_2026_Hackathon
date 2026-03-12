@@ -25,8 +25,8 @@
 
 **Purpose**: Add all new dependencies and configure the build system for Room, Navigation Compose, Lifecycle, and java.time desugaring.
 
-- [ ] T001 Add Room, KSP, Navigation Compose, Lifecycle ViewModel Compose, Lifecycle Runtime Compose, and Desugaring version entries and library aliases to BioGraphApp/gradle/libs.versions.toml
-- [ ] T002 Apply KSP plugin in BioGraphApp/build.gradle.kts (project-level) and configure Room schema export, core library desugaring, and all new dependency declarations in BioGraphApp/app/build.gradle.kts
+- [X] T001 Add Room, KSP, Navigation Compose, Lifecycle ViewModel Compose, Lifecycle Runtime Compose, and Desugaring version entries and library aliases to BioGraphApp/gradle/libs.versions.toml
+- [X] T002 Apply KSP plugin in BioGraphApp/build.gradle.kts (project-level) and configure Room schema export, core library desugaring, and all new dependency declarations in BioGraphApp/app/build.gradle.kts
 
 ---
 
@@ -36,17 +36,17 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T003 [P] Create DataTypeEntity Room entity with id, emoji, description, createdAt fields and composite unique index on (emoji, description) in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/local/DataTypeEntity.kt
-- [ ] T004 [P] Create DailyEntryEntity Room entity with id, date, dataTypeId fields, foreign key to DataTypeEntity with CASCADE delete, and composite unique index on (date, dataTypeId) in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/local/DailyEntryEntity.kt
-- [ ] T005 [P] Create DataTypeDao interface with getAllFlow(), getCount(), insert(), update(), delete(), and findDuplicate() methods in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/local/DataTypeDao.kt
-- [ ] T006 [P] Create DailyEntryDao interface with getEntriesForDateFlow(), getDatesWithEntriesFlow(), insertAll(), deleteAllForDate(), replaceEntriesForDate() transaction, and deleteOrphanedEntries() in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/local/DailyEntryDao.kt
-- [ ] T007 Create AppDatabase Room database class (version 1) referencing DataTypeEntity and DailyEntryEntity with schema export enabled and destructive migration fallback in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/local/AppDatabase.kt
-- [ ] T008 [P] Create DataTypeRepository wrapping DataTypeDao with Flow-based getAllFlow(), suspend getCount(), insert with duplicate check, update, and delete in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/repository/DataTypeRepository.kt
-- [ ] T009 [P] Create DailyEntryRepository wrapping DailyEntryDao with getEntriesForDate(), getDatesWithEntries(), and replaceEntriesForDate() in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/repository/DailyEntryRepository.kt
-- [ ] T010 Create BioGraphApplication class extending Application with lazy Room database singleton and repository accessors in BioGraphApp/app/src/main/java/com/martynamaron/biograph/BioGraphApplication.kt
-- [ ] T011 Register BioGraphApplication as android:name on the application tag in BioGraphApp/app/src/main/AndroidManifest.xml
-- [ ] T012 Create NavGraph composable with route definitions (Onboarding, Calendar, DataTypeList, Settings) using serializable route objects and AnimatedNavHost with slide+fade transitions in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/navigation/NavGraph.kt
-- [ ] T013 Update MainActivity to set Compose content hosting the NavGraph with MyApplicationTheme in BioGraphApp/app/src/main/java/com/martynamaron/biograph/MainActivity.kt
+- [X] T003 [P] Create DataTypeEntity Room entity with id, emoji, description, createdAt fields and composite unique index on (emoji, description) in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/local/DataTypeEntity.kt
+- [X] T004 [P] Create DailyEntryEntity Room entity with id, date, dataTypeId fields, foreign key to DataTypeEntity with CASCADE delete, and composite unique index on (date, dataTypeId) in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/local/DailyEntryEntity.kt
+- [X] T005 [P] Create DataTypeDao interface with getAllFlow(), getCount(), insert(), update(), delete(), and findDuplicate() methods in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/local/DataTypeDao.kt
+- [X] T006 [P] Create DailyEntryDao interface with getEntriesForDateFlow(), getDatesWithEntriesFlow(), insertAll(), deleteAllForDate(), replaceEntriesForDate() transaction, and deleteOrphanedEntries() in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/local/DailyEntryDao.kt
+- [X] T007 Create AppDatabase Room database class (version 1) referencing DataTypeEntity and DailyEntryEntity with schema export enabled and destructive migration fallback in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/local/AppDatabase.kt
+- [X] T008 [P] Create DataTypeRepository wrapping DataTypeDao with Flow-based getAllFlow(), suspend getCount(), insert with duplicate check, update, and delete in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/repository/DataTypeRepository.kt
+- [X] T009 [P] Create DailyEntryRepository wrapping DailyEntryDao with getEntriesForDate(), getDatesWithEntries(), and replaceEntriesForDate() in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/repository/DailyEntryRepository.kt
+- [X] T010 Create BioGraphApplication class extending Application with lazy Room database singleton and repository accessors in BioGraphApp/app/src/main/java/com/martynamaron/biograph/BioGraphApplication.kt
+- [X] T011 Register BioGraphApplication as android:name on the application tag in BioGraphApp/app/src/main/AndroidManifest.xml
+- [X] T012 Create NavGraph composable with route definitions (Onboarding, Calendar, DataTypeList, Settings) using serializable route objects and AnimatedNavHost with slide+fade transitions in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/navigation/NavGraph.kt
+- [X] T013 Update MainActivity to set Compose content hosting the NavGraph with MyApplicationTheme in BioGraphApp/app/src/main/java/com/martynamaron/biograph/MainActivity.kt
 
 **Checkpoint**: Foundation ready — database, repositories, navigation skeleton, and Application class all in place. User story implementation can now begin.
 
@@ -60,11 +60,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Create EmojiPicker composable with a single-line TextField configured for emoji keyboard input and single-emoji validation in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/components/EmojiPicker.kt
-- [ ] T015 [US1] Create DataTypeViewModel with StateFlow UI state, add data type action with emoji+description validation (non-empty, max 60 chars), duplicate check via repository, and error state handling in BioGraphApp/app/src/main/java/com/martynamaron/biograph/viewmodel/DataTypeViewModel.kt
-- [ ] T016 [US1] Create DataTypeEditDialog composable with EmojiPicker, description TextField with 60-char counter, inline validation messages, and Save/Cancel buttons in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/screens/datatype/DataTypeEditDialog.kt
-- [ ] T017 [US1] Create DataTypeListScreen composable with scrollable list of data types (emoji + description, newest first), FAB to open DataTypeEditDialog, and empty-state prompt in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/screens/datatype/DataTypeListScreen.kt
-- [ ] T018 [US1] Wire DataTypeListScreen route into NavGraph and add navigation action from CalendarScreen to DataTypeListScreen in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/navigation/NavGraph.kt
+- [X] T014 [P] [US1] Create EmojiPicker composable with a single-line TextField configured for emoji keyboard input and single-emoji validation in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/components/EmojiPicker.kt
+- [X] T015 [US1] Create DataTypeViewModel with StateFlow UI state, add data type action with emoji+description validation (non-empty, max 60 chars), duplicate check via repository, and error state handling in BioGraphApp/app/src/main/java/com/martynamaron/biograph/viewmodel/DataTypeViewModel.kt
+- [X] T016 [US1] Create DataTypeEditDialog composable with EmojiPicker, description TextField with 60-char counter, inline validation messages, and Save/Cancel buttons in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/screens/datatype/DataTypeEditDialog.kt
+- [X] T017 [US1] Create DataTypeListScreen composable with scrollable list of data types (emoji + description, newest first), FAB to open DataTypeEditDialog, and empty-state prompt in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/screens/datatype/DataTypeListScreen.kt
+- [X] T018 [US1] Wire DataTypeListScreen route into NavGraph and add navigation action from CalendarScreen to DataTypeListScreen in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/navigation/NavGraph.kt
 
 **Checkpoint**: User Story 1 complete — users can create and view custom data types. This is the MVP.
 
@@ -78,12 +78,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Create CalendarDay composable rendering day number, today highlight, and activity indicator dot with ripple touch feedback in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/components/CalendarDay.kt
-- [ ] T020 [P] [US2] Create DataTypeToggleItem composable with emoji, description text, and Material 3 Switch toggle in a 48dp-tall row in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/components/DataTypeToggleItem.kt
-- [ ] T021 [US2] Create CalendarViewModel with current YearMonth state, month navigation (prev/next), selected day state, entries-for-day Flow, dates-with-entries Flow for indicator dots, and save-day-entries action in BioGraphApp/app/src/main/java/com/martynamaron/biograph/viewmodel/CalendarViewModel.kt
-- [ ] T022 [US2] Create DayPanel ModalBottomSheet composable displaying DataTypeToggleItem list for selected day with local toggle state, Save/Done button committing via CalendarViewModel, and dismiss-without-save behavior in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/screens/calendar/DayPanel.kt
-- [ ] T023 [US2] Create CalendarScreen composable with 7-column LazyVerticalGrid of CalendarDay cells, month/year header with prev/next navigation arrows, AnimatedContent for month slide transitions, and day-tap triggering DayPanel in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/screens/calendar/CalendarScreen.kt
-- [ ] T024 [US2] Set CalendarScreen as the default start destination in NavGraph and ensure navigation to DataTypeList is accessible from CalendarScreen in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/navigation/NavGraph.kt
+- [X] T019 [P] [US2] Create CalendarDay composable rendering day number, today highlight, and activity indicator dot with ripple touch feedback in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/components/CalendarDay.kt
+- [X] T020 [P] [US2] Create DataTypeToggleItem composable with emoji, description text, and Material 3 Switch toggle in a 48dp-tall row in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/components/DataTypeToggleItem.kt
+- [X] T021 [US2] Create CalendarViewModel with current YearMonth state, month navigation (prev/next), selected day state, entries-for-day Flow, dates-with-entries Flow for indicator dots, and save-day-entries action in BioGraphApp/app/src/main/java/com/martynamaron/biograph/viewmodel/CalendarViewModel.kt
+- [X] T022 [US2] Create DayPanel ModalBottomSheet composable displaying DataTypeToggleItem list for selected day with local toggle state, Save/Done button committing via CalendarViewModel, and dismiss-without-save behavior in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/screens/calendar/DayPanel.kt
+- [X] T023 [US2] Create CalendarScreen composable with 7-column LazyVerticalGrid of CalendarDay cells, month/year header with prev/next navigation arrows, AnimatedContent for month slide transitions, and day-tap triggering DayPanel in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/screens/calendar/CalendarScreen.kt
+- [X] T024 [US2] Set CalendarScreen as the default start destination in NavGraph and ensure navigation to DataTypeList is accessible from CalendarScreen in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/navigation/NavGraph.kt
 
 **Checkpoint**: User Stories 1 AND 2 complete — users can define data types and log daily data via the calendar. Core app loop is functional.
 
@@ -97,9 +97,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Add update and delete actions to DataTypeViewModel with delete-confirmation state (pending delete target), confirm-delete action triggering repository delete, and edit validation (same rules as add, excluding self from duplicate check) in BioGraphApp/app/src/main/java/com/martynamaron/biograph/viewmodel/DataTypeViewModel.kt
-- [ ] T026 [US3] Update DataTypeEditDialog to accept an optional existing DataType for edit mode, pre-filling emoji and description fields, and changing dialog title to "Edit Data Type" in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/screens/datatype/DataTypeEditDialog.kt
-- [ ] T027 [US3] Add edit button and delete button with AlertDialog confirmation (stating historical data will be lost) to each item in DataTypeListScreen in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/screens/datatype/DataTypeListScreen.kt
+- [X] T025 [US3] Add update and delete actions to DataTypeViewModel with delete-confirmation state (pending delete target), confirm-delete action triggering repository delete, and edit validation (same rules as add, excluding self from duplicate check) in BioGraphApp/app/src/main/java/com/martynamaron/biograph/viewmodel/DataTypeViewModel.kt
+- [X] T026 [US3] Update DataTypeEditDialog to accept an optional existing DataType for edit mode, pre-filling emoji and description fields, and changing dialog title to "Edit Data Type" in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/screens/datatype/DataTypeEditDialog.kt
+- [X] T027 [US3] Add edit button and delete button with AlertDialog confirmation (stating historical data will be lost) to each item in DataTypeListScreen in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/screens/datatype/DataTypeListScreen.kt
 
 **Checkpoint**: User Stories 1, 2, AND 3 complete — full CRUD for data types with calendar integration.
 
@@ -113,10 +113,10 @@
 
 ### Implementation for User Story 4
 
-- [ ] T028 [P] [US4] Create OnboardingSuggestion data class and DEFAULT_SUGGESTIONS list (9 items: period/bleeding, mood, medication, sleep quality, exercise, left the house, saw friends, headache, energy level) in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/OnboardingSuggestion.kt
-- [ ] T029 [US4] Create OnboardingViewModel with selected-suggestions state, toggle-selection action, and create-selected-types action that batch-inserts via DataTypeRepository then signals navigation to calendar in BioGraphApp/app/src/main/java/com/martynamaron/biograph/viewmodel/OnboardingViewModel.kt
-- [ ] T030 [US4] Create OnboardingScreen composable with welcome message, selectable suggestion chips (emoji + description), "Get Started" button, "Skip" option, and "you can add more later" text in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/screens/onboarding/OnboardingScreen.kt
-- [ ] T031 [US4] Update NavGraph to conditionally route to OnboardingScreen on app start when DataTypeRepository.getCount() returns 0, otherwise route to CalendarScreen in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/navigation/NavGraph.kt
+- [X] T028 [P] [US4] Create OnboardingSuggestion data class and DEFAULT_SUGGESTIONS list (9 items: period/bleeding, mood, medication, sleep quality, exercise, left the house, saw friends, headache, energy level) in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/OnboardingSuggestion.kt
+- [X] T029 [US4] Create OnboardingViewModel with selected-suggestions state, toggle-selection action, and create-selected-types action that batch-inserts via DataTypeRepository then signals navigation to calendar in BioGraphApp/app/src/main/java/com/martynamaron/biograph/viewmodel/OnboardingViewModel.kt
+- [X] T030 [US4] Create OnboardingScreen composable with welcome message, selectable suggestion chips (emoji + description), "Get Started" button, "Skip" option, and "you can add more later" text in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/screens/onboarding/OnboardingScreen.kt
+- [X] T031 [US4] Update NavGraph to conditionally route to OnboardingScreen on app start when DataTypeRepository.getCount() returns 0, otherwise route to CalendarScreen in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/navigation/NavGraph.kt
 
 **Checkpoint**: User Stories 1–4 complete — new users get onboarding, existing users go straight to calendar.
 
@@ -130,10 +130,10 @@
 
 ### Implementation for User Story 5
 
-- [ ] T032 [P] [US5] Create MockDataGenerator utility class that accepts DataTypeRepository and DailyEntryRepository, generates entries for previous 2 calendar months with ~40-60% random toggle probability per data type per day in BioGraphApp/app/src/main/java/com/martynamaron/biograph/util/MockDataGenerator.kt
-- [ ] T033 [US5] Add RoomDatabase.Callback.onCreate to AppDatabase that pre-seeds the database with default data type suggestions and 2 months of mock daily entries via MockDataGenerator so the demo works immediately after install (Constitution Principle V) in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/local/AppDatabase.kt
-- [ ] T034 [US5] Create SettingsScreen composable with "Generate Mock Data" button, overwrite-confirmation AlertDialog, no-data-types guard prompting user to create types first, and success Snackbar in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/screens/settings/SettingsScreen.kt
-- [ ] T035 [US5] Wire SettingsScreen route into NavGraph and add settings navigation action (e.g., gear icon) from CalendarScreen top bar in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/navigation/NavGraph.kt
+- [X] T032 [P] [US5] Create MockDataGenerator utility class that accepts DataTypeRepository and DailyEntryRepository, generates entries for previous 2 calendar months with ~40-60% random toggle probability per data type per day in BioGraphApp/app/src/main/java/com/martynamaron/biograph/util/MockDataGenerator.kt
+- [X] T033 [US5] Add RoomDatabase.Callback.onCreate to AppDatabase that pre-seeds the database with default data type suggestions and 2 months of mock daily entries via MockDataGenerator so the demo works immediately after install (Constitution Principle V) in BioGraphApp/app/src/main/java/com/martynamaron/biograph/data/local/AppDatabase.kt
+- [X] T034 [US5] Create SettingsScreen composable with "Generate Mock Data" button, overwrite-confirmation AlertDialog, no-data-types guard prompting user to create types first, and success Snackbar in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/screens/settings/SettingsScreen.kt
+- [X] T035 [US5] Wire SettingsScreen route into NavGraph and add settings navigation action (e.g., gear icon) from CalendarScreen top bar in BioGraphApp/app/src/main/java/com/martynamaron/biograph/ui/navigation/NavGraph.kt
 
 **Checkpoint**: All 5 user stories complete — full feature set implemented. Database is auto-seeded on first install per Constitution Principle V.
 
@@ -143,9 +143,9 @@
 
 **Purpose**: Animation review, edge-case hardening, and build validation across all user stories.
 
-- [ ] T036 [P] Review and verify all screen transitions in NavGraph use slide+fade animated enter/exit (300ms EaseInOut) and calendar month navigation uses AnimatedContent slide transition per research.md
-- [ ] T037 [P] Verify edge cases: calendar handles 12+ months backward navigation, day panel scrolls with 30 data types without clipping, long descriptions truncate gracefully, empty-day-panel shows create-type prompt
-- [ ] T038 Run quickstart.md build validation: execute ./gradlew assembleDebug from BioGraphApp/ and confirm clean build with no errors
+- [X] T036 [P] Review and verify all screen transitions in NavGraph use slide+fade animated enter/exit (300ms EaseInOut) and calendar month navigation uses AnimatedContent slide transition per research.md
+- [X] T037 [P] Verify edge cases: calendar handles 12+ months backward navigation, day panel scrolls with 30 data types without clipping, long descriptions truncate gracefully, empty-day-panel shows create-type prompt
+- [X] T038 Run quickstart.md build validation: execute ./gradlew assembleDebug from BioGraphApp/ and confirm clean build with no errors
 
 ---
 
