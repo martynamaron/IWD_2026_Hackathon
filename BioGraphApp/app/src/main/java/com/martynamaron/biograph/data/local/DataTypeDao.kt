@@ -27,4 +27,10 @@ interface DataTypeDao {
 
     @Query("SELECT * FROM data_types WHERE emoji = :emoji AND description = :description LIMIT 1")
     suspend fun findDuplicate(emoji: String, description: String): DataTypeEntity?
+
+    @Query("SELECT * FROM data_types WHERE id = :id")
+    suspend fun getById(id: Long): DataTypeEntity?
+
+    @Query("SELECT * FROM data_types WHERE inputType != 'TOGGLE' ORDER BY createdAt DESC")
+    fun getNonToggleTypes(): Flow<List<DataTypeEntity>>
 }

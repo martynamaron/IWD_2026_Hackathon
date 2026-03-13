@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.martynamaron.biograph.BioGraphApplication
+import com.martynamaron.biograph.data.InputType
 import com.martynamaron.biograph.viewmodel.DataTypeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,9 +49,10 @@ import com.martynamaron.biograph.viewmodel.DataTypeViewModel
 fun DataTypeListScreen(
     onNavigateBack: () -> Unit,
     viewModel: DataTypeViewModel = viewModel(
-        factory = DataTypeViewModel.Factory(
-            (LocalContext.current.applicationContext as BioGraphApplication).dataTypeRepository
-        )
+        factory = run {
+            val app = LocalContext.current.applicationContext as BioGraphApplication
+            DataTypeViewModel.Factory(app.dataTypeRepository, app.multipleChoiceRepository, app.dailyEntryRepository)
+        }
     )
 ) {
     val dataTypes by viewModel.dataTypes.collectAsStateWithLifecycle()
@@ -145,17 +147,31 @@ fun DataTypeListScreen(
 
     // Edit/Add dialog
     if (uiState.isDialogOpen) {
+        val editingType = uiState.editingDataType
         DataTypeEditDialog(
             emoji = uiState.emoji,
             description = uiState.description,
+            inputType = uiState.inputType,
+            isInputTypeLocked = editingType != null && editingType.inputType != InputType.TOGGLE.name,
+            options = uiState.options,
+            optionsError = uiState.optionsError,
             emojiError = uiState.emojiError,
             descriptionError = uiState.descriptionError,
+            inputTypeError = uiState.inputTypeError,
             saveError = uiState.saveError,
             editingDataType = uiState.editingDataType,
+            confirmMigrationState = uiState.confirmMigrationState,
             onEmojiChanged = viewModel::updateEmoji,
             onDescriptionChanged = viewModel::updateDescription,
+            onInputTypeChanged = viewModel::updateInputType,
+            onOptionEmojiChanged = viewModel::updateOptionEmoji,
+            onOptionLabelChanged = viewModel::updateOptionLabel,
+            onRemoveOption = viewModel::removeOption,
+            onAddOption = viewModel::addOption,
             onSave = viewModel::save,
-            onDismiss = viewModel::dismissDialog
+            onDismiss = viewModel::dismissDialog,
+            onConfirmMigration = viewModel::confirmMigration,
+            onDismissMigration = viewModel::dismissMigrationDialog
         )
     }
 

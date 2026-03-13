@@ -61,7 +61,7 @@ fun CalendarScreen(
     viewModel: CalendarViewModel = viewModel(
         factory = run {
             val app = LocalContext.current.applicationContext as BioGraphApplication
-            CalendarViewModel.Factory(app.dataTypeRepository, app.dailyEntryRepository)
+            CalendarViewModel.Factory(app.dataTypeRepository, app.dailyEntryRepository, app.multipleChoiceRepository)
         }
     )
 ) {
@@ -70,6 +70,8 @@ fun CalendarScreen(
     val datesWithEntries by viewModel.datesWithEntries.collectAsStateWithLifecycle()
     val dataTypes by viewModel.dataTypes.collectAsStateWithLifecycle()
     val entriesForSelectedDate by viewModel.entriesForSelectedDate.collectAsStateWithLifecycle()
+    val scaleValues by viewModel.scaleValues.collectAsStateWithLifecycle()
+    val multiChoiceSelections by viewModel.multiChoiceSelections.collectAsStateWithLifecycle()
 
     // Track direction for slide animation
     var slideDirection by remember { mutableIntStateOf(0) }
@@ -164,7 +166,12 @@ fun CalendarScreen(
             date = date,
             dataTypes = dataTypes,
             entries = entriesForSelectedDate,
-            onSave = { d, activeIds -> viewModel.saveEntriesForDate(d, activeIds) },
+            scaleValues = scaleValues,
+            multiChoiceSelections = multiChoiceSelections,
+            multipleChoiceRepository = (LocalContext.current.applicationContext as BioGraphApplication).multipleChoiceRepository,
+            onScaleValueChanged = { dataTypeId, value -> viewModel.setScaleValue(dataTypeId, value) },
+            onToggleMultiChoiceOption = { dataTypeId, optionId -> viewModel.toggleMultiChoiceOption(dataTypeId, optionId) },
+            onSave = { d, activeIds, scales -> viewModel.saveEntriesForDate(d, activeIds) },
             onDismiss = { viewModel.clearSelectedDate() }
         )
     }
