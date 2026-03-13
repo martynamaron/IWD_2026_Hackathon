@@ -8,10 +8,8 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.martynamaron.biograph.data.DEFAULT_SUGGESTIONS
 import com.martynamaron.biograph.data.InputType
-import com.martynamaron.biograph.data.repository.DailyEntryRepository
 import com.martynamaron.biograph.data.repository.DataTypeRepository
 import com.martynamaron.biograph.data.repository.MultipleChoiceRepository
-import com.martynamaron.biograph.util.MockDataGenerator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -58,14 +56,13 @@ abstract class AppDatabase : RoomDatabase() {
                             CoroutineScope(Dispatchers.IO).launch {
                                 val instance = getInstance(context)
                                 val dataTypeRepo = DataTypeRepository(instance.dataTypeDao())
-                                val dailyEntryRepo = DailyEntryRepository(instance.dailyEntryDao())
                                 val mcRepo = MultipleChoiceRepository(
                                     instance.multipleChoiceOptionDao(),
                                     instance.multiChoiceSelectionDao()
                                 )
 
                                 // Seed default data types from suggestions
-                                val insertedTypes = DEFAULT_SUGGESTIONS.mapNotNull { suggestion ->
+                                DEFAULT_SUGGESTIONS.forEach { suggestion ->
                                     val entity = DataTypeEntity(
                                         emoji = suggestion.emoji,
                                         description = suggestion.description,
@@ -85,13 +82,8 @@ abstract class AppDatabase : RoomDatabase() {
                                                 }
                                             )
                                         }
-                                        entity.copy(id = id)
                                     }
                                 }
-
-                                // Generate 2 months of mock data
-                                MockDataGenerator(dataTypeRepo, dailyEntryRepo, mcRepo)
-                                    .generate(insertedTypes)
                             }
                         }
                     })
