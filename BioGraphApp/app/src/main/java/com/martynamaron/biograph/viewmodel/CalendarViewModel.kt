@@ -68,6 +68,10 @@ class CalendarViewModel(
         _currentMonth.value = _currentMonth.value.plusMonths(1)
     }
 
+    fun setCurrentMonth(month: YearMonth) {
+        _currentMonth.value = month
+    }
+
     fun selectDate(date: LocalDate) {
         _selectedDate.value = date
         viewModelScope.launch {
