@@ -73,4 +73,12 @@ class MultipleChoiceRepository(
 
     suspend fun getAllSelections(): List<MultiChoiceSelectionEntity> =
         selectionDao.getAllSelections()
+
+    suspend fun deleteAllSelections() {
+        selectionDao.deleteAll()
+    }
+
+    suspend fun deleteAllOptions() {
+        optionDao.deleteAll()
+    }
 }

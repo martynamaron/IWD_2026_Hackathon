@@ -79,7 +79,8 @@ fun InsightsByDataType(
                         InsightCard(
                             insight = groupedInsight.insight,
                             strengthTier = StrengthTier.fromCoefficient(groupedInsight.insight.correlationCoefficient),
-                            alsoInDataType = groupedInsight.alsoInDataTypeName
+                            alsoInDataType = groupedInsight.alsoInDataTypeName,
+                            trend = groupedInsight.trend
                         )
                     }
                 }

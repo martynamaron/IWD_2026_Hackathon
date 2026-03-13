@@ -11,6 +11,8 @@ Auto-generated from all feature plans. Last updated: 2026-03-12
 - Room SQLite (no changes needed for this feature) (005-brand-theme-refresh)
 - Kotlin 2.0.21 + Jetpack Compose (Material 3), Room 2.7.0, Navigation Compose 2.8.4 (006-insight-sorting)
 - Room SQLite (on-device only) (006-insight-sorting)
+- Kotlin 2.0.21 + Jetpack Compose (BOM 2026.03.00, Material 3), Room 2.7.0, Navigation Compose 2.8.4, Lifecycle ViewModel Compose 2.8.7 (007-mock-data-trends)
+- Room (local SQLite, AppDatabase v4, auto-migrations) (007-mock-data-trends)
 
 - Kotlin 2.0.21 (via Kotlin Compose plugin) + Jetpack Compose (BOM 2024.09.00), Material 3, Room, Navigation Compose, Lifecycle ViewModel Compose (001-add-track-data)
 
@@ -30,9 +32,9 @@ tests/
 Kotlin 2.0.21 (via Kotlin Compose plugin): Follow standard conventions
 
 ## Recent Changes
+- 007-mock-data-trends: Added Kotlin 2.0.21 + Jetpack Compose (BOM 2026.03.00, Material 3), Room 2.7.0, Navigation Compose 2.8.4, Lifecycle ViewModel Compose 2.8.7
 - 006-insight-sorting: Added Kotlin 2.0.21 + Jetpack Compose (Material 3), Room 2.7.0, Navigation Compose 2.8.4
 - 005-brand-theme-refresh: Added Kotlin (Jetpack Compose, Material 3) + Compose Material 3, Compose Navigation, Room
-- 004-calendar-insights: Added Kotlin 2.0.21 (Compose compiler plugin) + Jetpack Compose BOM 2026.03.00, Material 3, Room 2.7.0, Navigation Compose, kotlinx-serialization-json (all already present — zero new external dependencies)
 
 
 <!-- MANUAL ADDITIONS START -->

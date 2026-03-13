@@ -27,21 +27,22 @@ class InsightTextGenerator {
     ): String {
         val pct = result.coOccurrencePct?.roundToInt() ?: (abs(result.coefficient) * 100).roundToInt()
 
-        // If this involves an MC option, use option-specific text
-        if (result.optionLabel != null) {
-            val optE = result.optionEmoji ?: e1
-            val optL = result.optionLabel
-            return if (positive) {
-                "$optE $optL occurred on $pct% of days you also had $e2 $d2"
-            } else {
-                "You rarely chose $optE $optL on days with $e2 $d2 ($pct% co-occurrence)"
-            }
+        // Use option-specific names when available, falling back to data type names
+        val name1 = if (result.option1Label != null) {
+            "${result.option1Emoji ?: e1} ${result.option1Label}"
+        } else {
+            "$e1 $d1"
+        }
+        val name2 = if (result.option2Label != null) {
+            "${result.option2Emoji ?: e2} ${result.option2Label}"
+        } else {
+            "$e2 $d2"
         }
 
         return if (positive) {
-            "$e1 $d1 occurred on $pct% of days you also had $e2 $d2"
+            "$name1 occurred on $pct% of days you also had $name2"
         } else {
-            "You rarely had $e1 $d1 on days with $e2 $d2 ($pct% co-occurrence)"
+            "You rarely had $name1 on days with $name2 ($pct% co-occurrence)"
         }
     }
 
@@ -53,17 +54,17 @@ class InsightTextGenerator {
         val avg1 = result.mean1?.let { String.format("%.1f", it) } ?: "?"
         val avg0 = result.mean0?.let { String.format("%.1f", it) } ?: "?"
 
-        // If this involves an MC option
-        if (result.optionLabel != null) {
-            val optE = result.optionEmoji ?: e1
-            val optL = result.optionLabel
-            return "On days you chose $optE $optL, your $e2 $d2 averaged $avg1 vs $avg0"
+        // Use option-specific name for the binary signal (side 1)
+        val binaryName = if (result.option1Label != null) {
+            "${result.option1Emoji ?: e1} ${result.option1Label}"
+        } else {
+            "$e1 $d1"
         }
 
         return if (positive) {
-            "Your $e2 $d2 was higher on days with $e1 $d1 (avg $avg1 vs $avg0)"
+            "Your $e2 $d2 was higher on days with $binaryName (avg $avg1 vs $avg0)"
         } else {
-            "Your $e2 $d2 tended to be lower on days with $e1 $d1 (avg $avg1 vs $avg0)"
+            "Your $e2 $d2 tended to be lower on days with $binaryName (avg $avg1 vs $avg0)"
         }
     }
 

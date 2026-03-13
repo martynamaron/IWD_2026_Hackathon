@@ -60,4 +60,8 @@ class DailyEntryRepository(private val dao: DailyEntryDao) {
 
     suspend fun getAllEntries(): List<DailyEntryEntity> =
         dao.getAllEntries()
+
+    suspend fun deleteAll() {
+        dao.deleteAll()
+    }
 }

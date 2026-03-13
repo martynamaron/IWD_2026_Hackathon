@@ -13,15 +13,18 @@ class CorrelationEngine {
     data class CorrelationResult(
         val dataType1Id: Long,
         val dataType2Id: Long,
-        val optionId: Long?,
+        val option1Id: Long? = null,
+        val option2Id: Long? = null,
         val coefficient: Double,
         val method: String,
         val dataType1Emoji: String,
         val dataType1Desc: String,
         val dataType2Emoji: String,
         val dataType2Desc: String,
-        val optionEmoji: String? = null,
-        val optionLabel: String? = null,
+        val option1Emoji: String? = null,
+        val option1Label: String? = null,
+        val option2Emoji: String? = null,
+        val option2Label: String? = null,
         val mean1: Double? = null,
         val mean0: Double? = null,
         val coOccurrencePct: Double? = null,
@@ -124,9 +127,9 @@ class CorrelationEngine {
                                 dataType1Id = s1.dataTypeId, dataType2Id = s2.dataTypeId,
                                 dataType1Emoji = s1.emoji, dataType1Desc = s1.desc,
                                 dataType2Emoji = s2.emoji, dataType2Desc = s2.desc,
-                                optionId = s1.optionId ?: s2.optionId,
-                                optionEmoji = s1.optionEmoji ?: s2.optionEmoji,
-                                optionLabel = s1.optionLabel ?: s2.optionLabel
+                                option1Id = s1.optionId, option2Id = s2.optionId,
+                                option1Emoji = s1.optionEmoji, option1Label = s1.optionLabel,
+                                option2Emoji = s2.optionEmoji, option2Label = s2.optionLabel
                             )
                         }
                     s1.type == InputType.SCALE && s2.type == InputType.SCALE ->
@@ -169,12 +172,12 @@ class CorrelationEngine {
 
         return CorrelationResult(
             dataType1Id = s1.dataTypeId, dataType2Id = s2.dataTypeId,
-            optionId = s1.optionId ?: s2.optionId,
+            option1Id = s1.optionId, option2Id = s2.optionId,
             coefficient = phi, method = "PHI",
             dataType1Emoji = s1.emoji, dataType1Desc = s1.desc,
             dataType2Emoji = s2.emoji, dataType2Desc = s2.desc,
-            optionEmoji = s1.optionEmoji ?: s2.optionEmoji,
-            optionLabel = s1.optionLabel ?: s2.optionLabel,
+            option1Emoji = s1.optionEmoji, option1Label = s1.optionLabel,
+            option2Emoji = s2.optionEmoji, option2Label = s2.optionLabel,
             coOccurrencePct = coOccurrence,
             sampleSize = dates.size
         )
@@ -210,11 +213,12 @@ class CorrelationEngine {
 
         return CorrelationResult(
             dataType1Id = binarySignal.dataTypeId, dataType2Id = scaleSignal.dataTypeId,
-            optionId = binarySignal.optionId,
+            option1Id = binarySignal.optionId, option2Id = scaleSignal.optionId,
             coefficient = rpb, method = "POINT_BISERIAL",
             dataType1Emoji = binarySignal.emoji, dataType1Desc = binarySignal.desc,
             dataType2Emoji = scaleSignal.emoji, dataType2Desc = scaleSignal.desc,
-            optionEmoji = binarySignal.optionEmoji, optionLabel = binarySignal.optionLabel,
+            option1Emoji = binarySignal.optionEmoji, option1Label = binarySignal.optionLabel,
+            option2Emoji = scaleSignal.optionEmoji, option2Label = scaleSignal.optionLabel,
             mean1 = mean1, mean0 = mean0,
             sampleSize = group1.size + group0.size
         )
@@ -252,7 +256,6 @@ class CorrelationEngine {
 
         return CorrelationResult(
             dataType1Id = s1.dataTypeId, dataType2Id = s2.dataTypeId,
-            optionId = null,
             coefficient = r, method = "PEARSON",
             dataType1Emoji = s1.emoji, dataType1Desc = s1.desc,
             dataType2Emoji = s2.emoji, dataType2Desc = s2.desc,

@@ -22,6 +22,10 @@ class InsightRepository(
         insightDao.insertAll(insights)
     }
 
+    suspend fun deleteAllInsights() {
+        insightDao.deleteAll()
+    }
+
     suspend fun needsReanalysis(): Boolean {
         val meta = analysisMetadataDao.getMetadata()
         val currentCount = getCurrentDataCount()

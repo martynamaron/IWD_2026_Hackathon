@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.martynamaron.biograph.data.analysis.InsightWithTrend
 import com.martynamaron.biograph.data.local.InsightEntity
 import com.martynamaron.biograph.ui.theme.MyApplicationTheme
 import com.martynamaron.biograph.viewmodel.DataTypeInsightGroup
@@ -278,7 +279,7 @@ private fun InsightsPanelSuccessPreview() {
         InsightsPanel(
             state = InsightPanelState.Success(insights = insights),
             sortMode = InsightSortMode.BY_STRENGTH,
-            sortState = InsightSortState.ByStrength(insights)
+            sortState = InsightSortState.ByStrength(insights.map { InsightWithTrend(it, null) })
         )
     }
 }

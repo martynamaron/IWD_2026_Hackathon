@@ -32,6 +32,7 @@ data class InsightEntity(
     val dataType1Id: Long,
     val dataType2Id: Long,
     val optionId: Long? = null,
+    val option2Id: Long? = null,
     val correlationCoefficient: Double,
     val correlationMethod: String,
     val insightText: String,

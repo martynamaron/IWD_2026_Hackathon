@@ -1,11 +1,5 @@
 package com.martynamaron.biograph.ui.screens.calendar
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -38,9 +34,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -68,6 +64,7 @@ import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,8 +101,20 @@ fun CalendarScreen(
         insightViewModel.refresh()
     }
 
-    // Track direction for slide animation
-    var slideDirection by remember { mutableIntStateOf(0) }
+    // Pager setup: large page count centered at current month
+    val referenceMonth = remember { YearMonth.now() }
+    val totalPages = 2400 // ~200 years of range
+    val initialPage = totalPages / 2
+    val pagerState = rememberPagerState(initialPage = initialPage) { totalPages }
+    val coroutineScope = rememberCoroutineScope()
+
+    // Sync settled pager page to ViewModel's currentMonth
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.settledPage }.collect { page ->
+            val month = referenceMonth.plusMonths((page - initialPage).toLong())
+            viewModel.setCurrentMonth(month)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -158,65 +167,65 @@ fun CalendarScreen(
                     .padding(horizontal = 8.dp)
                     .verticalScroll(rememberScrollState())
             ) {
-            // Month navigation header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = {
-                    slideDirection = -1
-                    viewModel.navigateToPreviousMonth()
-                }) {
-                    Icon(Icons.Default.ChevronLeft, contentDescription = "Previous month")
-                }
-                Text(
-                    text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy")),
-                    style = MaterialTheme.typography.titleLarge
-                )
-                IconButton(onClick = {
-                    slideDirection = 1
-                    viewModel.navigateToNextMonth()
-                }) {
-                    Icon(Icons.Default.ChevronRight, contentDescription = "Next month")
-                }
-            }
+            // Swipeable calendar: month name + day headers + grid
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxWidth()
+            ) { page ->
+                val month = referenceMonth.plusMonths((page - initialPage).toLong())
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    // Month navigation header
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                            }
+                        }) {
+                            Icon(Icons.Default.ChevronLeft, contentDescription = "Previous month")
+                        }
+                        Text(
+                            text = month.format(DateTimeFormatter.ofPattern("MMMM yyyy")),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        IconButton(onClick = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                            }
+                        }) {
+                            Icon(Icons.Default.ChevronRight, contentDescription = "Next month")
+                        }
+                    }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-            // Day-of-week headers
-            Row(modifier = Modifier.fillMaxWidth()) {
-                val daysOfWeek = DayOfWeek.entries
-                daysOfWeek.forEach { day ->
-                    Text(
-                        text = day.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
-                        style = MaterialTheme.typography.labelSmall,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.weight(1f)
+                    // Day-of-week headers
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        val daysOfWeek = DayOfWeek.entries
+                        daysOfWeek.forEach { day ->
+                            Text(
+                                text = day.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
+                                style = MaterialTheme.typography.labelSmall,
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Calendar grid
+                    CalendarGrid(
+                        month = month,
+                        today = LocalDate.now(),
+                        datesWithEntries = datesWithEntries.toSet(),
+                        onDayClick = { date -> viewModel.selectDate(date) }
                     )
                 }
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Calendar grid with animated month transitions
-            AnimatedContent(
-                targetState = currentMonth,
-                transitionSpec = {
-                    val dir = slideDirection
-                    slideInHorizontally(tween(300)) { fullWidth -> fullWidth * dir } togetherWith
-                            slideOutHorizontally(tween(300)) { fullWidth -> -fullWidth * dir } using
-                            SizeTransform(clip = false)
-                },
-                label = "month_transition"
-            ) { month ->
-                CalendarGrid(
-                    month = month,
-                    today = LocalDate.now(),
-                    datesWithEntries = datesWithEntries.toSet(),
-                    onDayClick = { date -> viewModel.selectDate(date) }
-                )
             }
 
             // Insights panel below calendar grid

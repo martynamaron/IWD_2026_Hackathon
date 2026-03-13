@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.martynamaron.biograph.data.analysis.CorrelationEngine
 import com.martynamaron.biograph.data.analysis.InsightTextGenerator
+import com.martynamaron.biograph.data.analysis.InsightWithTrend
+import com.martynamaron.biograph.data.analysis.TrendDirection
 import com.martynamaron.biograph.data.local.DataTypeEntity
 import com.martynamaron.biograph.data.local.InsightEntity
 import com.martynamaron.biograph.data.local.MultipleChoiceOptionEntity
@@ -61,7 +63,8 @@ enum class StrengthTier(val label: String) {
 
 data class GroupedInsight(
     val insight: InsightEntity,
-    val alsoInDataTypeName: String?
+    val alsoInDataTypeName: String?,
+    val trend: TrendDirection? = null
 )
 
 data class DataTypeInsightGroup(
@@ -72,7 +75,7 @@ data class DataTypeInsightGroup(
 
 sealed interface InsightSortState {
     data class ByStrength(
-        val insights: List<InsightEntity>
+        val insights: List<InsightWithTrend>
     ) : InsightSortState
 
     data class ByDataType(
@@ -101,6 +104,9 @@ class InsightViewModel(
     val sortState: StateFlow<InsightSortState> = _sortState.asStateFlow()
 
     private var cachedDataTypes: List<DataTypeEntity> = emptyList()
+    private var cachedTrends: Map<TrendKey, TrendDirection> = emptyMap()
+
+    private data class TrendKey(val dt1Id: Long, val dt2Id: Long, val option1Id: Long?, val option2Id: Long?)
 
     private val correlationEngine = CorrelationEngine()
     private val textGenerator = InsightTextGenerator()
@@ -188,7 +194,7 @@ class InsightViewModel(
                 _state.value = InsightPanelState.Loading
 
                 // Run analysis on background thread
-                val results = withContext(Dispatchers.Default) {
+                val (results, trendMap) = withContext(Dispatchers.Default) {
                     val allSelections = withContext(Dispatchers.IO) {
                         multipleChoiceRepository.getAllSelections()
                     }.filter { it.date >= cutoffDate }
@@ -201,21 +207,76 @@ class InsightViewModel(
                         if (opts.isNotEmpty()) optionsMap[dt.id] = opts
                     }
 
-                    correlationEngine.analyseAll(
+                    val fullResults = correlationEngine.analyseAll(
                         entries = entries,
                         selections = allSelections,
                         dataTypes = dataTypes,
                         options = optionsMap,
                         dates = allDates
                     )
+
+                    // Compute trends: only for LAST_3_MONTHS and LAST_YEAR (FR-014)
+                    val trends = mutableMapOf<TrendKey, TrendDirection>()
+                    if (_selectedPeriod.value != InsightPeriod.LAST_MONTH && allDates.size >= 14) {
+                        val midpoint = allDates.size / 2
+                        val firstHalfDates = allDates.subList(0, midpoint)
+                        val secondHalfDates = allDates.subList(midpoint, allDates.size)
+
+                        val firstHalfEntries = entries.filter { it.date in firstHalfDates.toSet() }
+                        val secondHalfEntries = entries.filter { it.date in secondHalfDates.toSet() }
+                        val firstHalfSelections = allSelections.filter { it.date in firstHalfDates.toSet() }
+                        val secondHalfSelections = allSelections.filter { it.date in secondHalfDates.toSet() }
+
+                        val firstResults = correlationEngine.analyseAll(
+                            entries = firstHalfEntries,
+                            selections = firstHalfSelections,
+                            dataTypes = dataTypes,
+                            options = optionsMap,
+                            dates = firstHalfDates
+                        )
+                        val secondResults = correlationEngine.analyseAll(
+                            entries = secondHalfEntries,
+                            selections = secondHalfSelections,
+                            dataTypes = dataTypes,
+                            options = optionsMap,
+                            dates = secondHalfDates
+                        )
+
+                        // Index results by key for matching
+                        val firstByKey = firstResults.associateBy {
+                            TrendKey(it.dataType1Id, it.dataType2Id, it.option1Id, it.option2Id)
+                        }
+                        val secondByKey = secondResults.associateBy {
+                            TrendKey(it.dataType1Id, it.dataType2Id, it.option1Id, it.option2Id)
+                        }
+
+                        for (result in fullResults) {
+                            val key = TrendKey(result.dataType1Id, result.dataType2Id, result.option1Id, result.option2Id)
+                            val firstCoeff = firstByKey[key]?.coefficient
+                            val secondCoeff = secondByKey[key]?.coefficient
+                            if (firstCoeff != null && secondCoeff != null) {
+                                val delta = kotlin.math.abs(secondCoeff) - kotlin.math.abs(firstCoeff)
+                                trends[key] = when {
+                                    delta >= 0.15 -> TrendDirection.STRENGTHENING
+                                    delta <= -0.15 -> TrendDirection.WEAKENING
+                                    else -> TrendDirection.STABLE
+                                }
+                            }
+                        }
+                    }
+
+                    Pair(fullResults, trends)
                 }
+
+                cachedTrends = trendMap
 
                 // Convert to entities with text
                 val insights = results.map { result ->
                     InsightEntity(
                         dataType1Id = result.dataType1Id,
                         dataType2Id = result.dataType2Id,
-                        optionId = result.optionId,
+                        optionId = result.option1Id,
+                        option2Id = result.option2Id,
                         correlationCoefficient = result.coefficient,
                         correlationMethod = result.method,
                         insightText = textGenerator.generate(result),
@@ -269,7 +330,11 @@ class InsightViewModel(
                     compareByDescending<InsightEntity> { kotlin.math.abs(it.correlationCoefficient) }
                         .thenByDescending { it.computedAt }
                 )
-                _sortState.value = InsightSortState.ByStrength(sorted)
+                val withTrends = sorted.map { insight ->
+                    val key = TrendKey(insight.dataType1Id, insight.dataType2Id, insight.optionId, insight.option2Id)
+                    InsightWithTrend(insight = insight, trend = cachedTrends[key])
+                }
+                _sortState.value = InsightSortState.ByStrength(withTrends)
             }
             InsightSortMode.BY_DATA_TYPE -> {
                 _sortState.value = buildGroupedState(insights)
@@ -284,7 +349,9 @@ class InsightViewModel(
         val groupMap = mutableMapOf<Long, MutableList<InsightEntity>>()
         for (insight in insights) {
             groupMap.getOrPut(insight.dataType1Id) { mutableListOf() }.add(insight)
-            groupMap.getOrPut(insight.dataType2Id) { mutableListOf() }.add(insight)
+            if (insight.dataType2Id != insight.dataType1Id) {
+                groupMap.getOrPut(insight.dataType2Id) { mutableListOf() }.add(insight)
+            }
         }
 
         val groups = groupMap.mapNotNull { (dataTypeId, groupInsights) ->
@@ -297,12 +364,13 @@ class InsightViewModel(
                     .thenByDescending { it.computedAt }
             )
 
-            // Build GroupedInsight with "Also in" cross-reference
+            // Build GroupedInsight with "Also in" cross-reference and trend
             val grouped = sortedInsights.map { insight ->
                 val otherDataTypeId = if (insight.dataType1Id == dataTypeId) insight.dataType2Id else insight.dataType1Id
                 val otherDataType = dataTypeMap[otherDataTypeId]
                 val alsoIn = otherDataType?.let { "${it.emoji} ${it.description}" }
-                GroupedInsight(insight = insight, alsoInDataTypeName = alsoIn)
+                val key = TrendKey(insight.dataType1Id, insight.dataType2Id, insight.optionId, insight.option2Id)
+                GroupedInsight(insight = insight, alsoInDataTypeName = alsoIn, trend = cachedTrends[key])
             }
 
             DataTypeInsightGroup(
