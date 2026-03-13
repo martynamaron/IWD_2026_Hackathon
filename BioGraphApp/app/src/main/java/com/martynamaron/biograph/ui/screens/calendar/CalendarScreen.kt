@@ -43,6 +43,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -55,6 +58,7 @@ import com.martynamaron.biograph.BioGraphApplication
 import com.martynamaron.biograph.R
 import com.martynamaron.biograph.ui.components.CalendarDay
 import com.martynamaron.biograph.ui.components.InsightsPanel
+import com.martynamaron.biograph.ui.theme.GreenLightest
 import com.martynamaron.biograph.ui.theme.MyApplicationTheme
 import com.martynamaron.biograph.viewmodel.CalendarViewModel
 import com.martynamaron.biograph.viewmodel.InsightViewModel
@@ -129,13 +133,31 @@ fun CalendarScreen(
             )
         }
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 8.dp)
-                .verticalScroll(rememberScrollState())
         ) {
+            // Faint green logo tilted diagonally in the bottom-right corner
+            Image(
+                painter = painterResource(R.drawable.black_logo),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(top = 20.dp)
+                    .size(350.dp)
+                    .align(Alignment.TopEnd)
+                    .rotate(-35f)
+                    .alpha(0.08f),
+                colorFilter = ColorFilter.tint(GreenLightest),
+                contentScale = ContentScale.Fit
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 8.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
             // Month navigation header
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -206,6 +228,7 @@ fun CalendarScreen(
                 sortState = sortState,
                 onSortModeSelected = { insightViewModel.setSortMode(it) }
             )
+            }
         }
     }
 
