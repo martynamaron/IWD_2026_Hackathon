@@ -139,13 +139,23 @@ fun DataTypeListScreen(
                                     fontSize = 28.sp
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
-                                Text(
-                                    text = dataType.description,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier.weight(1f)
-                                )
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = dataType.description,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        text = when (dataType.inputType) {
+                                            InputType.SCALE.name -> "Scale (1–10)"
+                                            InputType.MULTIPLE_CHOICE.name -> "Multiple choice"
+                                            else -> "Yes / No"
+                                        },
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                                 IconButton(onClick = { viewModel.openEditDialog(dataType) }) {
                                     Icon(
                                         Icons.Default.Edit,
