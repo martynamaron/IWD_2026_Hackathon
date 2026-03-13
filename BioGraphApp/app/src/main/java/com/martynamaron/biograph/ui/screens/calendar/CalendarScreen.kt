@@ -79,7 +79,7 @@ fun CalendarScreen(
     insightViewModel: InsightViewModel = viewModel(
         factory = run {
             val app = LocalContext.current.applicationContext as BioGraphApplication
-            InsightViewModel.Factory(app.insightRepository, app.dataTypeRepository, app.dailyEntryRepository, app.multipleChoiceRepository)
+            InsightViewModel.Factory(app.insightRepository, app.dataTypeRepository, app.dailyEntryRepository, app.multipleChoiceRepository, app.userPreferenceRepository)
         }
     )
 ) {
@@ -92,6 +92,8 @@ fun CalendarScreen(
     val multiChoiceSelections by viewModel.multiChoiceSelections.collectAsStateWithLifecycle()
     val insightState by insightViewModel.stateFlow.collectAsStateWithLifecycle()
     val selectedPeriod by insightViewModel.selectedPeriod.collectAsStateWithLifecycle()
+    val sortMode by insightViewModel.sortMode.collectAsStateWithLifecycle()
+    val sortState by insightViewModel.sortState.collectAsStateWithLifecycle()
 
     // Refresh insights when screen appears (re-check if data changed)
     LaunchedEffect(Unit) {
@@ -199,7 +201,10 @@ fun CalendarScreen(
             InsightsPanel(
                 state = insightState,
                 selectedPeriod = selectedPeriod,
-                onPeriodSelected = { insightViewModel.selectPeriod(it) }
+                onPeriodSelected = { insightViewModel.selectPeriod(it) },
+                sortMode = sortMode,
+                sortState = sortState,
+                onSortModeSelected = { insightViewModel.setSortMode(it) }
             )
         }
     }
