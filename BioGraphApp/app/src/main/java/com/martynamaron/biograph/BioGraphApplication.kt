@@ -4,6 +4,7 @@ import android.app.Application
 import com.martynamaron.biograph.data.local.AppDatabase
 import com.martynamaron.biograph.data.repository.DailyEntryRepository
 import com.martynamaron.biograph.data.repository.DataTypeRepository
+import com.martynamaron.biograph.data.repository.InsightRepository
 import com.martynamaron.biograph.data.repository.MultipleChoiceRepository
 
 class BioGraphApplication : Application() {
@@ -24,6 +25,15 @@ class BioGraphApplication : Application() {
             database.multiChoiceSelectionDao(),
             database.dataTypeDao(),
             dailyEntryRepository
+        )
+    }
+
+    val insightRepository: InsightRepository by lazy {
+        InsightRepository(
+            database.insightDao(),
+            database.analysisMetadataDao(),
+            database.dailyEntryDao(),
+            database.multiChoiceSelectionDao()
         )
     }
 }

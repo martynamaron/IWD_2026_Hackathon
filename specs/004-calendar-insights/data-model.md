@@ -277,6 +277,20 @@ sealed interface InsightPanelState {
 }
 ```
 
+### InsightPeriod
+
+Enum representing the time range for insight analysis. Users toggle between periods via tabs in the insights panel.
+
+```kotlin
+enum class InsightPeriod(val label: String, val months: Long) {
+    LAST_MONTH("Last month", 1),
+    LAST_3_MONTHS("Last 3 months", 3),
+    LAST_YEAR("Last year", 12)
+}
+```
+
+The `InsightViewModel` exposes `selectedPeriod: StateFlow<InsightPeriod>` (default `LAST_3_MONTHS`). When the user selects a tab, `selectPeriod(period)` filters all entries and selections to only dates on or after `today - period.months` and re-runs the correlation engine on that subset.
+
 ---
 
 ## Entity Relationship Diagram

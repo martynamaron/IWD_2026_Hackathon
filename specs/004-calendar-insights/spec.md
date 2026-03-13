@@ -95,6 +95,23 @@ When the user logs new daily entries and returns to the Calendar screen, insight
 - What happens when the user has only one data type tracked? The system should recognize that cross-correlation requires at least 2 data types and inform the user: "Track more than one data type to discover patterns."
 - What happens when insights are stale (e.g., computed days ago but user hasn't opened the app)? The system should re-analyse when the Calendar screen is opened if data has changed since last analysis.
 
+### User Story 6 - Filtering Insights by Time Period (Priority: P2)
+
+A user wants to see how patterns differ across time ranges — for example, last month vs the last 3 months vs the last year. The insights panel provides tabs at the top to toggle between these time periods. Switching tabs re-analyses only the data within the selected range and updates the insights accordingly.
+
+**Why this priority**: Allows users to spot trends that may be recent vs long-running, adding depth to the pattern analysis without requiring a separate screen.
+
+**Independent Test**: Can be tested by having at least 3 months of data, opening the Calendar screen, and tapping each time period tab to verify insights change based on the selected range.
+
+**Acceptance Scenarios**:
+
+1. **Given** the insights panel is visible, **When** the user views it, **Then** three time period tabs are shown at the top: "Last month", "Last 3 months", "Last year".
+2. **Given** the user taps a different time period tab, **When** the analysis completes, **Then** insights reflect only correlations from data within that time range.
+3. **Given** the user selects "Last month" but has fewer than 7 days of data in that range, **When** the panel updates, **Then** the insufficient data message is shown for that period.
+4. **Given** the user switches between tabs, **When** each tab is selected, **Then** a loading state briefly appears while new analysis runs, followed by the updated insights.
+
+---
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
@@ -117,6 +134,7 @@ When the user logs new daily entries and returns to the Calendar screen, insight
 - **FR-016**: The system MUST use statistical correlation analysis as the primary method for identifying patterns. This ensures fast results on all devices.
 - **FR-017**: The system MAY optionally use an on-device LLM (when available on the device) to enhance insight phrasing or detect more complex patterns. Statistical analysis remains the required baseline; the LLM is an additive enhancement, not a prerequisite.
 - **FR-018**: All analysis MUST run on-device — no network calls or cloud services.
+- **FR-019**: The insights panel MUST provide time period tabs (Last month, Last 3 months, Last year) that filter analysis to only data within the selected range. The default period is "Last 3 months".
 
 ### Key Entities
 

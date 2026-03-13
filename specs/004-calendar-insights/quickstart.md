@@ -98,6 +98,7 @@ CalendarScreen (Scaffold)
     ├── Day-of-week headers
     ├── AnimatedContent → CalendarGrid
     └── InsightsPanel (NEW)          ← inserted here
+        ├── PrimaryTabRow: [Last month | Last 3 months | Last year]
         ├── Loading: InsightLoader (custom animated dots)
         ├── Success: InsightCard list + disclaimer text
         ├── InsufficientData: encouragement message
@@ -115,9 +116,9 @@ The `InsightLoader` uses `rememberInfiniteTransition` with 3 bouncing dots:
 
 ## How to Verify
 
-1. **Seed data**: The app already generates 2 months of mock data on fresh install. Ensure mock data includes varied patterns (some toggles correlated with each other).
-2. **Open Calendar**: Insights panel should appear below the grid, showing a custom loader briefly, then revealing insights.
-3. **Add new data**: Log a day's entry via the DayPanel. Return to Calendar. Verify insights re-compute (loader appears, new insights shown).
-4. **Cold restart**: Kill and reopen the app. Insights should load instantly from DB without showing the loader.
+1. **Seed data**: The app already generates 2 months of correlated mock data on fresh install (e.g., headaches correlate with not leaving the house, mood correlates with seeing friends).
+2. **Open Calendar**: Insights panel should appear below the grid with time period tabs, showing a custom loader briefly, then revealing insights.
+3. **Switch time periods**: Tap each tab (Last month, Last 3 months, Last year). Verify insights update per the selected range. "Last month" may show fewer or different insights than "Last 3 months".
+4. **Add new data**: Log a day's entry via the DayPanel. Return to Calendar. Verify insights re-compute (loader appears, new insights shown).
 5. **Delete a data type**: Verify insights referencing it disappear.
 6. **Fresh install with < 7 days**: Verify "Keep tracking!" message appears instead of insights.

@@ -25,4 +25,10 @@ interface MultiChoiceSelectionDao {
 
     @Query("DELETE FROM multi_choice_selections WHERE dataTypeId = :dataTypeId")
     suspend fun deleteAllForDataType(dataTypeId: Long)
+
+    @Query("SELECT COUNT(*) FROM multi_choice_selections")
+    suspend fun getTotalCount(): Int
+
+    @Query("SELECT * FROM multi_choice_selections ORDER BY date")
+    suspend fun getAllSelections(): List<MultiChoiceSelectionEntity>
 }

@@ -5,7 +5,7 @@
 
 ## Summary
 
-Add an insights panel to the bottom of the Calendar screen that surfaces pattern correlations from the user's tracked data. A stateless, pure-Kotlin correlation engine computes pairwise statistical correlations (Phi coefficient, Point-biserial, Pearson) across all data type combinations (Toggle, Scale, Multiple Choice). Results are persisted to the local Room database and displayed as templated plain-language sentences with emoji. A custom animated loader (bouncing dots, not platform progress bar) provides a delightful loading state. A persistent non-medical disclaimer is shown. Re-analysis triggers only when new data has been logged since the last analysis run. No network calls — all processing is on-device.
+Add an insights panel to the bottom of the Calendar screen that surfaces pattern correlations from the user's tracked data. A stateless, pure-Kotlin correlation engine computes pairwise statistical correlations (Phi coefficient, Point-biserial, Pearson) across all data type combinations (Toggle, Scale, Multiple Choice). Results are displayed as templated plain-language sentences with emoji. A `PrimaryTabRow` lets users toggle between three time periods (Last month, Last 3 months, Last year) — each tab re-runs analysis on the filtered date range. A custom animated loader (bouncing dots, not platform progress bar) provides a delightful loading state. A persistent non-medical disclaimer is shown. No network calls — all processing is on-device.
 
 ## Technical Context
 
@@ -17,7 +17,7 @@ Add an insights panel to the bottom of the Calendar screen that surfaces pattern
 **Project Type**: Mobile app (single-activity Compose)
 **Performance Goals**: 60 fps UI; insights visible within 10 seconds of screen open (SC-001); cached insights shown under 1 second (SC-005); custom loader visible within 500ms (SC-004)
 **Constraints**: Offline-only, single-user, no new external dependencies, on-device analysis only (FR-018), no network calls
-**Scale/Scope**: 2 new Room entities, 2 new DAOs, 1 new repository, 1 correlation engine, 1 text generator, 3 new Compose components, 1 new ViewModel, 2 modified screens/DAOs
+**Scale/Scope**: 2 new Room entities, 2 new DAOs, 1 new repository, 1 correlation engine, 1 text generator, 4 new Compose components, 1 new ViewModel with time-period filtering, 2 modified screens/DAOs
 
 ## Constitution Check
 
@@ -41,9 +41,9 @@ Add an insights panel to the bottom of the Calendar screen that surfaces pattern
 
 | Principle | Status | Post-Design Notes |
 |-----------|--------|-------------------|
-| I. Material 3 Design Consistency | ✅ PASS | `Card` (M3) for insight items. `bodySmall` for disclaimer. All colors from `MaterialTheme.colorScheme`. Custom loader uses basic Compose primitives (`Box`, `CircleShape`), not Canvas drawing. |
+| I. Material 3 Design Consistency | ✅ PASS | `Card` (M3) for insight items. `PrimaryTabRow` with `Tab` for time period selection. `bodySmall` for disclaimer. All colors from `MaterialTheme.colorScheme`. Custom loader uses basic Compose primitives (`Box`, `CircleShape`), not Canvas drawing. |
 | II. Compose-First UI Architecture | ✅ PASS | Three new stateless composables (`InsightsPanel`, `InsightCard`, `InsightLoader`) in `ui/components/`. State hoisted to `InsightViewModel`. `@Preview` annotations on all. |
-| III. Clean Kotlin Structure | ✅ PASS | `CorrelationEngine` is a pure Kotlin class with no Android deps — testable. `InsightRepository` owns data access. `InsightViewModel` exposes `StateFlow<InsightPanelState>`. Business logic in ViewModel/engine, never in composables. |
+| III. Clean Kotlin Structure | ✅ PASS | `CorrelationEngine` is a pure Kotlin class with no Android deps — testable. `InsightRepository` owns data access. `InsightViewModel` exposes `StateFlow<InsightPanelState>` and `StateFlow<InsightPeriod>`. `InsightPeriod` enum encapsulates time ranges. Business logic in ViewModel/engine, never in composables. |
 | IV. Simplicity & Pragmatism | ✅ PASS | No new dependencies. Two simple DB tables. Statistical analysis in ~200 lines of Kotlin. Template-based text. Separate ViewModel avoids bloating existing `CalendarViewModel`. |
 | V. Local Database | ✅ PASS | `@AutoMigration(from = 2, to = 3)` adds two tables. CASCADE DELETE on both FK columns. `AnalysisMetadataEntity` single-row pattern for change detection. Repository layer maintained. |
 | VI. Delight & Motion Design | ✅ PASS | Bouncing dots loader (3 dots, staggered `tween(600ms)`). `AnimatedContent` crossfade for state transitions. `AnimatedVisibility` for panel appear/disappear. |
@@ -83,10 +83,10 @@ BioGraphApp/app/src/main/java/com/martynamaron/biograph/
 │   └── repository/
 │       └── InsightRepository.kt                         # NEW — insight persistence + re-analysis logic
 ├── viewmodel/
-│   └── InsightViewModel.kt                              # NEW — manages analysis lifecycle + UI state
+│   └── InsightViewModel.kt                              # NEW — manages analysis lifecycle + UI state + time period filtering
 └── ui/
     ├── components/
-    │   ├── InsightsPanel.kt                             # NEW — panel composable with state handling
+    │   ├── InsightsPanel.kt                             # NEW — panel composable with state handling + PrimaryTabRow for time periods
     │   ├── InsightCard.kt                               # NEW — single insight display card
     │   └── InsightLoader.kt                             # NEW — custom animated dots loader
     └── screens/

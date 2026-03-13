@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.ChevronLeft
@@ -32,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -45,7 +48,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.martynamaron.biograph.BioGraphApplication
 import com.martynamaron.biograph.ui.components.CalendarDay
+import com.martynamaron.biograph.ui.components.InsightsPanel
 import com.martynamaron.biograph.viewmodel.CalendarViewModel
+import com.martynamaron.biograph.viewmodel.InsightViewModel
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -63,6 +68,12 @@ fun CalendarScreen(
             val app = LocalContext.current.applicationContext as BioGraphApplication
             CalendarViewModel.Factory(app.dataTypeRepository, app.dailyEntryRepository, app.multipleChoiceRepository)
         }
+    ),
+    insightViewModel: InsightViewModel = viewModel(
+        factory = run {
+            val app = LocalContext.current.applicationContext as BioGraphApplication
+            InsightViewModel.Factory(app.insightRepository, app.dataTypeRepository, app.dailyEntryRepository, app.multipleChoiceRepository)
+        }
     )
 ) {
     val currentMonth by viewModel.currentMonth.collectAsStateWithLifecycle()
@@ -72,6 +83,13 @@ fun CalendarScreen(
     val entriesForSelectedDate by viewModel.entriesForSelectedDate.collectAsStateWithLifecycle()
     val scaleValues by viewModel.scaleValues.collectAsStateWithLifecycle()
     val multiChoiceSelections by viewModel.multiChoiceSelections.collectAsStateWithLifecycle()
+    val insightState by insightViewModel.stateFlow.collectAsStateWithLifecycle()
+    val selectedPeriod by insightViewModel.selectedPeriod.collectAsStateWithLifecycle()
+
+    // Refresh insights when screen appears (re-check if data changed)
+    LaunchedEffect(Unit) {
+        insightViewModel.refresh()
+    }
 
     // Track direction for slide animation
     var slideDirection by remember { mutableIntStateOf(0) }
@@ -96,6 +114,7 @@ fun CalendarScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .padding(horizontal = 8.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             // Month navigation header
             Row(
@@ -157,6 +176,13 @@ fun CalendarScreen(
                     onDayClick = { date -> viewModel.selectDate(date) }
                 )
             }
+
+            // Insights panel below calendar grid
+            InsightsPanel(
+                state = insightState,
+                selectedPeriod = selectedPeriod,
+                onPeriodSelected = { insightViewModel.selectPeriod(it) }
+            )
         }
     }
 
@@ -198,9 +224,15 @@ private fun CalendarGrid(
         }
     }
 
+    // Fixed height so LazyVerticalGrid works inside a scrollable Column
+    val rowCount = (cells.size + 6) / 7
+    val gridHeight = (rowCount * 48).dp
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(7),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(gridHeight),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         items(cells) { dayNumber ->
