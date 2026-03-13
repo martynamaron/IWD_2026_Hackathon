@@ -8,10 +8,8 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.martynamaron.biograph.data.DEFAULT_SUGGESTIONS
 import com.martynamaron.biograph.data.InputType
-import com.martynamaron.biograph.data.repository.DailyEntryRepository
 import com.martynamaron.biograph.data.repository.DataTypeRepository
 import com.martynamaron.biograph.data.repository.MultipleChoiceRepository
-import com.martynamaron.biograph.util.MockDataGenerator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,13 +21,15 @@ import kotlinx.coroutines.launch
         MultipleChoiceOptionEntity::class,
         MultiChoiceSelectionEntity::class,
         InsightEntity::class,
-        AnalysisMetadataEntity::class
+        AnalysisMetadataEntity::class,
+        UserPreferenceEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
-        AutoMigration(from = 2, to = 3)
+        AutoMigration(from = 2, to = 3),
+        AutoMigration(from = 3, to = 4)
     ]
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -39,6 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun multiChoiceSelectionDao(): MultiChoiceSelectionDao
     abstract fun insightDao(): InsightDao
     abstract fun analysisMetadataDao(): AnalysisMetadataDao
+    abstract fun userPreferenceDao(): UserPreferenceDao
 
     companion object {
         @Volatile
@@ -58,14 +59,13 @@ abstract class AppDatabase : RoomDatabase() {
                             CoroutineScope(Dispatchers.IO).launch {
                                 val instance = getInstance(context)
                                 val dataTypeRepo = DataTypeRepository(instance.dataTypeDao())
-                                val dailyEntryRepo = DailyEntryRepository(instance.dailyEntryDao())
                                 val mcRepo = MultipleChoiceRepository(
                                     instance.multipleChoiceOptionDao(),
                                     instance.multiChoiceSelectionDao()
                                 )
 
                                 // Seed default data types from suggestions
-                                val insertedTypes = DEFAULT_SUGGESTIONS.mapNotNull { suggestion ->
+                                DEFAULT_SUGGESTIONS.forEach { suggestion ->
                                     val entity = DataTypeEntity(
                                         emoji = suggestion.emoji,
                                         description = suggestion.description,
@@ -85,13 +85,8 @@ abstract class AppDatabase : RoomDatabase() {
                                                 }
                                             )
                                         }
-                                        entity.copy(id = id)
                                     }
                                 }
-
-                                // Generate 2 months of mock data
-                                MockDataGenerator(dataTypeRepo, dailyEntryRepo, mcRepo)
-                                    .generate(insertedTypes)
                             }
                         }
                     })

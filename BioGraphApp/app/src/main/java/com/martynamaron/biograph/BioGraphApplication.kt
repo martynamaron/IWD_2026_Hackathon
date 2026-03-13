@@ -6,6 +6,7 @@ import com.martynamaron.biograph.data.repository.DailyEntryRepository
 import com.martynamaron.biograph.data.repository.DataTypeRepository
 import com.martynamaron.biograph.data.repository.InsightRepository
 import com.martynamaron.biograph.data.repository.MultipleChoiceRepository
+import com.martynamaron.biograph.data.repository.UserPreferenceRepository
 
 class BioGraphApplication : Application() {
 
@@ -35,5 +36,9 @@ class BioGraphApplication : Application() {
             database.dailyEntryDao(),
             database.multiChoiceSelectionDao()
         )
+    }
+
+    val userPreferenceRepository: UserPreferenceRepository by lazy {
+        UserPreferenceRepository(database.userPreferenceDao())
     }
 }

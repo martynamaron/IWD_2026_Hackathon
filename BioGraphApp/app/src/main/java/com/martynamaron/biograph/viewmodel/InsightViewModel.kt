@@ -12,6 +12,7 @@ import com.martynamaron.biograph.data.repository.DataTypeRepository
 import com.martynamaron.biograph.data.repository.InsightRepository
 import com.martynamaron.biograph.data.repository.DailyEntryRepository
 import com.martynamaron.biograph.data.repository.MultipleChoiceRepository
+import com.martynamaron.biograph.data.repository.UserPreferenceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,11 +37,55 @@ enum class InsightPeriod(val label: String, val months: Long) {
     LAST_YEAR("Last year", 12)
 }
 
+enum class InsightSortMode {
+    BY_STRENGTH,
+    BY_DATA_TYPE
+}
+
+enum class StrengthTier(val label: String) {
+    STRONG("Strong"),
+    MODERATE("Moderate"),
+    MILD("Mild");
+
+    companion object {
+        fun fromCoefficient(coefficient: Double): StrengthTier {
+            val abs = kotlin.math.abs(coefficient)
+            return when {
+                abs >= 0.80 -> STRONG
+                abs >= 0.60 -> MODERATE
+                else -> MILD
+            }
+        }
+    }
+}
+
+data class GroupedInsight(
+    val insight: InsightEntity,
+    val alsoInDataTypeName: String?
+)
+
+data class DataTypeInsightGroup(
+    val dataTypeName: String,
+    val insightCount: Int,
+    val insights: List<GroupedInsight>
+)
+
+sealed interface InsightSortState {
+    data class ByStrength(
+        val insights: List<InsightEntity>
+    ) : InsightSortState
+
+    data class ByDataType(
+        val groups: List<DataTypeInsightGroup>
+    ) : InsightSortState
+}
+
 class InsightViewModel(
     private val insightRepository: InsightRepository,
     private val dataTypeRepository: DataTypeRepository,
     private val dailyEntryRepository: DailyEntryRepository,
-    private val multipleChoiceRepository: MultipleChoiceRepository
+    private val multipleChoiceRepository: MultipleChoiceRepository,
+    private val userPreferenceRepository: UserPreferenceRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<InsightPanelState>(InsightPanelState.Loading)
@@ -49,12 +94,48 @@ class InsightViewModel(
     private val _selectedPeriod = MutableStateFlow(InsightPeriod.LAST_3_MONTHS)
     val selectedPeriod: StateFlow<InsightPeriod> = _selectedPeriod.asStateFlow()
 
+    private val _sortMode = MutableStateFlow(InsightSortMode.BY_STRENGTH)
+    val sortMode: StateFlow<InsightSortMode> = _sortMode.asStateFlow()
+
+    private val _sortState = MutableStateFlow<InsightSortState>(InsightSortState.ByStrength(emptyList()))
+    val sortState: StateFlow<InsightSortState> = _sortState.asStateFlow()
+
+    private var cachedDataTypes: List<DataTypeEntity> = emptyList()
+
     private val correlationEngine = CorrelationEngine()
     private val textGenerator = InsightTextGenerator()
     private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
     init {
+        loadPersistedSortMode()
         checkAndAnalyse()
+    }
+
+    private fun loadPersistedSortMode() {
+        viewModelScope.launch {
+            val saved = withContext(Dispatchers.IO) {
+                userPreferenceRepository.getSortMode()
+            }
+            if (saved != null) {
+                try {
+                    _sortMode.value = InsightSortMode.valueOf(saved)
+                } catch (_: IllegalArgumentException) {
+                    // Invalid stored value — keep default
+                }
+            }
+        }
+    }
+
+    fun setSortMode(mode: InsightSortMode) {
+        if (_sortMode.value != mode) {
+            _sortMode.value = mode
+            recomputeSortState()
+            viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    userPreferenceRepository.setSortMode(mode.name)
+                }
+            }
+        }
     }
 
     fun refresh() {
@@ -73,6 +154,7 @@ class InsightViewModel(
             try {
                 // Check data type count
                 val dataTypes = dataTypeRepository.getAllFlow().first()
+                cachedDataTypes = dataTypes
                 if (dataTypes.isEmpty()) {
                     _state.value = InsightPanelState.Hidden
                     return@launch
@@ -153,6 +235,7 @@ class InsightViewModel(
                     )
                 } else {
                     _state.value = InsightPanelState.Success(insights)
+                    recomputeSortState()
                 }
             } catch (e: Exception) {
                 _state.value = InsightPanelState.Error(
@@ -166,11 +249,69 @@ class InsightViewModel(
         private val insightRepository: InsightRepository,
         private val dataTypeRepository: DataTypeRepository,
         private val dailyEntryRepository: DailyEntryRepository,
-        private val multipleChoiceRepository: MultipleChoiceRepository
+        private val multipleChoiceRepository: MultipleChoiceRepository,
+        private val userPreferenceRepository: UserPreferenceRepository
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return InsightViewModel(insightRepository, dataTypeRepository, dailyEntryRepository, multipleChoiceRepository) as T
+            return InsightViewModel(insightRepository, dataTypeRepository, dailyEntryRepository, multipleChoiceRepository, userPreferenceRepository) as T
         }
+    }
+
+    private fun recomputeSortState() {
+        val currentState = _state.value
+        if (currentState !is InsightPanelState.Success) return
+        val insights = currentState.insights
+
+        when (_sortMode.value) {
+            InsightSortMode.BY_STRENGTH -> {
+                val sorted = insights.sortedWith(
+                    compareByDescending<InsightEntity> { kotlin.math.abs(it.correlationCoefficient) }
+                        .thenByDescending { it.computedAt }
+                )
+                _sortState.value = InsightSortState.ByStrength(sorted)
+            }
+            InsightSortMode.BY_DATA_TYPE -> {
+                _sortState.value = buildGroupedState(insights)
+            }
+        }
+    }
+
+    private fun buildGroupedState(insights: List<InsightEntity>): InsightSortState.ByDataType {
+        val dataTypeMap = cachedDataTypes.associateBy { it.id }
+
+        // Build a map: dataTypeId -> list of insights involving that data type
+        val groupMap = mutableMapOf<Long, MutableList<InsightEntity>>()
+        for (insight in insights) {
+            groupMap.getOrPut(insight.dataType1Id) { mutableListOf() }.add(insight)
+            groupMap.getOrPut(insight.dataType2Id) { mutableListOf() }.add(insight)
+        }
+
+        val groups = groupMap.mapNotNull { (dataTypeId, groupInsights) ->
+            val dataType = dataTypeMap[dataTypeId] ?: return@mapNotNull null
+            val displayName = "${dataType.emoji} ${dataType.description}"
+
+            // Sort within group by |coefficient| desc, then computedAt desc
+            val sortedInsights = groupInsights.sortedWith(
+                compareByDescending<InsightEntity> { kotlin.math.abs(it.correlationCoefficient) }
+                    .thenByDescending { it.computedAt }
+            )
+
+            // Build GroupedInsight with "Also in" cross-reference
+            val grouped = sortedInsights.map { insight ->
+                val otherDataTypeId = if (insight.dataType1Id == dataTypeId) insight.dataType2Id else insight.dataType1Id
+                val otherDataType = dataTypeMap[otherDataTypeId]
+                val alsoIn = otherDataType?.let { "${it.emoji} ${it.description}" }
+                GroupedInsight(insight = insight, alsoInDataTypeName = alsoIn)
+            }
+
+            DataTypeInsightGroup(
+                dataTypeName = displayName,
+                insightCount = grouped.size,
+                insights = grouped
+            )
+        }.sortedBy { it.dataTypeName }
+
+        return InsightSortState.ByDataType(groups)
     }
 }
