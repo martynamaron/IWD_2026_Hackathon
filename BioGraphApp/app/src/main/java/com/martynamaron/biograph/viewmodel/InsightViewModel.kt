@@ -284,7 +284,9 @@ class InsightViewModel(
         val groupMap = mutableMapOf<Long, MutableList<InsightEntity>>()
         for (insight in insights) {
             groupMap.getOrPut(insight.dataType1Id) { mutableListOf() }.add(insight)
-            groupMap.getOrPut(insight.dataType2Id) { mutableListOf() }.add(insight)
+            if (insight.dataType2Id != insight.dataType1Id) {
+                groupMap.getOrPut(insight.dataType2Id) { mutableListOf() }.add(insight)
+            }
         }
 
         val groups = groupMap.mapNotNull { (dataTypeId, groupInsights) ->
