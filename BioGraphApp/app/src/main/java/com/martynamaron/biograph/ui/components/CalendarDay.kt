@@ -25,6 +25,7 @@ fun CalendarDay(
     dayNumber: Int,
     isToday: Boolean,
     hasActivity: Boolean,
+    isFuture: Boolean = false,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -40,10 +41,16 @@ fun CalendarDay(
                     CircleShape
                 ) else Modifier
             )
-            .clickable(
-                interactionSource = interactionSource,
-                indication = ripple(bounded = true, radius = 24.dp),
-                onClick = onClick
+            .then(
+                if (!isFuture) {
+                    Modifier.clickable(
+                        interactionSource = interactionSource,
+                        indication = ripple(bounded = true, radius = 24.dp),
+                        onClick = onClick
+                    )
+                } else {
+                    Modifier
+                }
             ),
         contentAlignment = Alignment.Center
     ) {
@@ -52,10 +59,10 @@ fun CalendarDay(
                 text = dayNumber.toString(),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
-                color = if (isToday) {
-                    MaterialTheme.colorScheme.onPrimaryContainer
-                } else {
-                    MaterialTheme.colorScheme.onSurface
+                color = when {
+                    isFuture -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                    isToday -> MaterialTheme.colorScheme.onPrimaryContainer
+                    else -> MaterialTheme.colorScheme.onSurface
                 }
             )
             if (hasActivity) {

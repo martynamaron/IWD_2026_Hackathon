@@ -57,4 +57,7 @@ class DailyEntryRepository(private val dao: DailyEntryDao) {
     suspend fun deleteAllForDataType(dataTypeId: Long) {
         dao.deleteAllForDataType(dataTypeId)
     }
+
+    suspend fun getAllEntries(): List<DailyEntryEntity> =
+        dao.getAllEntries()
 }

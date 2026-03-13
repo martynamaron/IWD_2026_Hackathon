@@ -69,7 +69,8 @@ fun MultiChoiceOptionEditor(
                     EmojiPicker(
                         emoji = option.emoji,
                         onEmojiChanged = { onOptionEmojiChanged(option.key, it) },
-                        isError = false
+                        isError = false,
+                        modifier = Modifier.padding(top = 8.dp)
                     )
                     OutlinedTextField(
                         value = option.label,
@@ -85,7 +86,8 @@ fun MultiChoiceOptionEditor(
                     )
                     IconButton(
                         onClick = { onRemoveOption(option.key) },
-                        enabled = options.size > 2
+                        enabled = options.size > 2,
+                        modifier = Modifier.padding(top = 8.dp)
                     ) {
                         Icon(
                             Icons.Default.Close,

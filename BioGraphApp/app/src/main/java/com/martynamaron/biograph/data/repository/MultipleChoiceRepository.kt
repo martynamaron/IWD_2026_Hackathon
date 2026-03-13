@@ -70,4 +70,7 @@ class MultipleChoiceRepository(
             ?: throw IllegalArgumentException("Data type $dataTypeId not found")
         dtDao.update(existing.copy(inputType = InputType.MULTIPLE_CHOICE.name))
     }
+
+    suspend fun getAllSelections(): List<MultiChoiceSelectionEntity> =
+        selectionDao.getAllSelections()
 }

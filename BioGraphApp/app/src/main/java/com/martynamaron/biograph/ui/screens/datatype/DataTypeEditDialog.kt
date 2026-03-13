@@ -90,7 +90,8 @@ fun DataTypeEditDialog(
                     EmojiPicker(
                         emoji = emoji,
                         onEmojiChanged = onEmojiChanged,
-                        isError = emojiError != null
+                        isError = emojiError != null,
+                        modifier = Modifier.padding(top = 8.dp)
                     )
                     OutlinedTextField(
                         value = description,

@@ -38,4 +38,10 @@ interface DailyEntryDao {
 
     @Query("DELETE FROM daily_entries WHERE dataTypeId = :dataTypeId")
     suspend fun deleteAllForDataType(dataTypeId: Long)
+
+    @Query("SELECT COUNT(*) FROM daily_entries")
+    suspend fun getTotalCount(): Int
+
+    @Query("SELECT * FROM daily_entries ORDER BY date")
+    suspend fun getAllEntries(): List<DailyEntryEntity>
 }

@@ -53,7 +53,7 @@ fun EmojiPicker(
             text = emoji.ifEmpty { "🙂" },
             fontSize = 28.sp,
             color = if (emoji.isEmpty()) {
-                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
             } else {
                 MaterialTheme.colorScheme.onSurface
             }
