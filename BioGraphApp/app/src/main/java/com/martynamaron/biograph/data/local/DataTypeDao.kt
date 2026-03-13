@@ -33,4 +33,7 @@ interface DataTypeDao {
 
     @Query("SELECT * FROM data_types WHERE inputType != 'TOGGLE' ORDER BY createdAt DESC")
     fun getNonToggleTypes(): Flow<List<DataTypeEntity>>
+
+    @Query("DELETE FROM data_types")
+    suspend fun deleteAll()
 }

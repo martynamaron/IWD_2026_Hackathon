@@ -148,7 +148,7 @@ fun DataTypeListScreen(
                                     )
                                     Text(
                                         text = when (dataType.inputType) {
-                                            InputType.SCALE.name -> "Scale (1–10)"
+                                            InputType.SCALE.name -> "Scale (1–5)"
                                             InputType.MULTIPLE_CHOICE.name -> "Multiple choice"
                                             else -> "Yes / No"
                                         },

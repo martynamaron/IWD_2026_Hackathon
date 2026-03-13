@@ -31,4 +31,7 @@ interface MultiChoiceSelectionDao {
 
     @Query("SELECT * FROM multi_choice_selections ORDER BY date")
     suspend fun getAllSelections(): List<MultiChoiceSelectionEntity>
+
+    @Query("DELETE FROM multi_choice_selections")
+    suspend fun deleteAll()
 }

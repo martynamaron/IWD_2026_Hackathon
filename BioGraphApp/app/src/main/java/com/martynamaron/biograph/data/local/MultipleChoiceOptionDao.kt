@@ -23,4 +23,7 @@ interface MultipleChoiceOptionDao {
 
     @Query("DELETE FROM multiple_choice_options WHERE dataTypeId = :dataTypeId")
     suspend fun deleteAllForDataType(dataTypeId: Long)
+
+    @Query("DELETE FROM multiple_choice_options")
+    suspend fun deleteAll()
 }

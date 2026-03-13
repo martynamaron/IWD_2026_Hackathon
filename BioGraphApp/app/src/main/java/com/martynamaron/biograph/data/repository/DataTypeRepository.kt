@@ -37,6 +37,10 @@ class DataTypeRepository(
         dao.delete(dataType)
     }
 
+    suspend fun deleteAll() {
+        dao.deleteAll()
+    }
+
     suspend fun migrateDataTypeToScale(dataTypeId: Long) {
         val entryRepo = requireNotNull(dailyEntryRepository) {
             "DailyEntryRepository required for migration"

@@ -38,13 +38,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.martynamaron.biograph.BioGraphApplication
 import com.martynamaron.biograph.R
 import com.martynamaron.biograph.ui.theme.GreenLightest
 import com.martynamaron.biograph.util.MockDataGenerator
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -58,9 +56,7 @@ fun SettingsScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val dataTypes by app.dataTypeRepository.getAllFlow().collectAsStateWithLifecycle(initialValue = emptyList())
-
-    var showConfirmDialog by remember { mutableStateOf(false) }
+    var showTimeRangeDialog by remember { mutableStateOf(false) }
     var isGenerating by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -108,7 +104,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Generate 2 months of randomised daily entries for testing and demo purposes.",
+                text = "Generate sample health data with realistic patterns and correlations for testing and demo purposes.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -116,13 +112,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = {
-                    if (dataTypes.isEmpty()) {
-                        scope.launch { snackbarHostState.showSnackbar("Create some data types first") }
-                    } else {
-                        showConfirmDialog = true
-                    }
-                },
+                onClick = { showTimeRangeDialog = true },
                 enabled = !isGenerating,
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -132,33 +122,51 @@ fun SettingsScreen(
         }
     }
 
-    if (showConfirmDialog) {
+    if (showTimeRangeDialog) {
         AlertDialog(
-            onDismissRequest = { showConfirmDialog = false },
-            title = { Text("Generate Mock Data?") },
+            onDismissRequest = { showTimeRangeDialog = false },
+            title = { Text("Generate Sample Data") },
             text = {
-                Text("This will generate random daily entries for the past 2 months. Existing entries for those dates will be overwritten.")
+                Text("Choose how much sample data to generate. Any existing data will be replaced.")
             },
             confirmButton = {
                 TextButton(onClick = {
-                    showConfirmDialog = false
+                    showTimeRangeDialog = false
                     isGenerating = true
                     scope.launch {
                         withContext(Dispatchers.IO) {
-                            val types = app.dataTypeRepository.getAllFlow().first()
-                            MockDataGenerator(app.dataTypeRepository, app.dailyEntryRepository, app.multipleChoiceRepository)
-                                .generate(types)
+                            MockDataGenerator(
+                                app.dataTypeRepository,
+                                app.dailyEntryRepository,
+                                app.multipleChoiceRepository,
+                                app.insightRepository
+                            ).generate(6)
                         }
                         isGenerating = false
-                        snackbarHostState.showSnackbar("Mock data generated successfully")
+                        snackbarHostState.showSnackbar("6 months of sample data generated")
                     }
                 }) {
-                    Text("Generate")
+                    Text("6 months")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showConfirmDialog = false }) {
-                    Text("Cancel")
+                TextButton(onClick = {
+                    showTimeRangeDialog = false
+                    isGenerating = true
+                    scope.launch {
+                        withContext(Dispatchers.IO) {
+                            MockDataGenerator(
+                                app.dataTypeRepository,
+                                app.dailyEntryRepository,
+                                app.multipleChoiceRepository,
+                                app.insightRepository
+                            ).generate(3)
+                        }
+                        isGenerating = false
+                        snackbarHostState.showSnackbar("3 months of sample data generated")
+                    }
+                }) {
+                    Text("3 months")
                 }
             }
         )
