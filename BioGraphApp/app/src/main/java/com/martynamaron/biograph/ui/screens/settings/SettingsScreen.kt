@@ -1,11 +1,14 @@
 package com.martynamaron.biograph.ui.screens.settings
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
@@ -26,11 +29,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.martynamaron.biograph.BioGraphApplication
+import com.martynamaron.biograph.R
+import com.martynamaron.biograph.ui.theme.GreenLightest
 import com.martynamaron.biograph.util.MockDataGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -65,12 +76,30 @@ fun SettingsScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp)
         ) {
+            // Faint green logo tilted diagonally in the bottom-right corner
+            Image(
+                painter = painterResource(R.drawable.black_logo),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(top = 20.dp)
+                    .size(350.dp)
+                    .align(Alignment.TopEnd)
+                    .rotate(-35f)
+                    .alpha(0.08f),
+                colorFilter = ColorFilter.tint(GreenLightest),
+                contentScale = ContentScale.Fit
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
             Text(
                 text = "Demo Data",
                 style = MaterialTheme.typography.titleMedium
@@ -99,6 +128,7 @@ fun SettingsScreen(
             ) {
                 Text(if (isGenerating) "Generating…" else "Generate Mock Data")
             }
+        }
         }
     }
 
