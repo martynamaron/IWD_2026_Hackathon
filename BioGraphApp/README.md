@@ -1,3 +1,5 @@
+![BioGraph Splash](brand/bioGraph_splash.gif)
+
 # BioGraph
 
 **BioGraph** is a personal daily tracking app for Android that helps users log and discover patterns in their daily habits, health, and wellness — all on-device, with full privacy.
