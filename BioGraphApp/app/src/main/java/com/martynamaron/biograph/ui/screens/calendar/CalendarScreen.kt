@@ -211,6 +211,7 @@ private fun CalendarGrid(
                     dayNumber = dayNumber,
                     isToday = date == today,
                     hasActivity = dateString in datesWithEntries,
+                    isFuture = date.isAfter(today),
                     onClick = { onDayClick(date) }
                 )
             } else {
