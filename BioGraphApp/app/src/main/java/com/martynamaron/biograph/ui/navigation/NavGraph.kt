@@ -19,8 +19,10 @@ import com.martynamaron.biograph.ui.screens.calendar.CalendarScreen
 import com.martynamaron.biograph.ui.screens.datatype.DataTypeListScreen
 import com.martynamaron.biograph.ui.screens.onboarding.OnboardingScreen
 import com.martynamaron.biograph.ui.screens.settings.SettingsScreen
+import com.martynamaron.biograph.ui.screens.splash.SplashScreen
 import kotlinx.serialization.Serializable
 
+@Serializable object SplashRoute
 @Serializable object OnboardingRoute
 @Serializable object CalendarRoute
 @Serializable object DataTypeListRoute
@@ -32,18 +34,16 @@ fun NavGraph() {
     val context = LocalContext.current
     val app = context.applicationContext as BioGraphApplication
 
-    // One-time check: determine start destination based on whether data types exist
-    var startRoute by remember { mutableStateOf<Any?>(null) }
+    // Determine the post-splash destination
+    var postSplashRoute by remember { mutableStateOf<Any?>(null) }
     LaunchedEffect(Unit) {
         val count = app.dataTypeRepository.getCount()
-        startRoute = if (count == 0) OnboardingRoute else CalendarRoute
+        postSplashRoute = if (count == 0) OnboardingRoute else CalendarRoute
     }
-
-    val startDestination = startRoute ?: return
 
     NavHost(
         navController = navController,
-        startDestination = startDestination,
+        startDestination = SplashRoute,
         enterTransition = {
             slideIntoContainer(
                 AnimatedContentTransitionScope.SlideDirection.Start,
@@ -69,6 +69,19 @@ fun NavGraph() {
             ) + fadeOut(animationSpec = tween(300))
         }
     ) {
+        composable<SplashRoute>(
+            enterTransition = { fadeIn(animationSpec = tween(0)) },
+            exitTransition = { fadeOut(animationSpec = tween(500)) }
+        ) {
+            SplashScreen(
+                onSplashFinished = {
+                    val destination = postSplashRoute ?: CalendarRoute
+                    navController.navigate(destination) {
+                        popUpTo(SplashRoute) { inclusive = true }
+                    }
+                }
+            )
+        }
         composable<OnboardingRoute> {
             OnboardingScreen(
                 onComplete = {
