@@ -10,6 +10,6 @@ val SecondaryContainer = Color(0xFFB8E6D0)
 val TertiaryContainer = Color(0xFFE0F5EC)
 
 // Strength tier semantic tokens
-val StrengthStrong = Color(0xFF15603E)     // Reuses GreenDarkest — high emphasis
-val StrengthModerate = Color(0xFF6CC19F)   // Reuses GreenLightest — medium emphasis
-val StrengthMild = Color(0xFF79747E)       // Neutral outline — low emphasis
+val StrengthStrong = Color(0xFF0C3322)    // Reuses GreenDarkest — high emphasis
+val StrengthModerate = GreenMid   // Reuses GreenLightest — medium emphasis
+val StrengthMild = Color(0xFF8F8D93)       // Neutral outline — low emphasis

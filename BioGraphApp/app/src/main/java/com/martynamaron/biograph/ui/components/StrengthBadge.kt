@@ -1,5 +1,7 @@
 package com.martynamaron.biograph.ui.components
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -22,8 +24,8 @@ fun StrengthBadge(tier: StrengthTier, modifier: Modifier = Modifier) {
         StrengthTier.MILD -> StrengthMild
     }
     Surface(
-        modifier = modifier,
-        color = color.copy(alpha = 0.15f),
+        modifier = modifier.border(1.dp, color, shape = MaterialTheme.shapes.small),
+        color = color.copy(alpha = 0.3f),
         shape = MaterialTheme.shapes.small
     ) {
         Text(
@@ -39,14 +41,10 @@ fun StrengthBadge(tier: StrengthTier, modifier: Modifier = Modifier) {
 @Composable
 private fun StrengthBadgeStrongPreview() {
     MyApplicationTheme {
-        StrengthBadge(tier = StrengthTier.STRONG)
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun StrengthBadgeModeratePreview() {
-    MyApplicationTheme {
-        StrengthBadge(tier = StrengthTier.MODERATE)
+        Column {
+            StrengthBadge(tier = StrengthTier.STRONG)
+            StrengthBadge(tier = StrengthTier.MODERATE)
+            StrengthBadge(tier = StrengthTier.MILD)
+        }
     }
 }
