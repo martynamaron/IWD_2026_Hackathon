@@ -44,6 +44,7 @@ import com.martynamaron.biograph.R
 import com.martynamaron.biograph.ui.theme.GreenDarkest
 import com.martynamaron.biograph.ui.theme.GreenLightest
 import com.martynamaron.biograph.ui.theme.GreenMid
+import com.martynamaron.biograph.ui.theme.SyneFontFamily
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -200,6 +201,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
 
             Text(
                 text = "BioGraph",
+                fontFamily = SyneFontFamily,
                 fontSize = 34.sp,
                 fontWeight = FontWeight.Bold,
                 color = GreenDarkest,
@@ -212,6 +214,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
 
             Text(
                 text = "Track your life, discover patterns",
+                fontFamily = SyneFontFamily,
                 fontSize = 16.sp,
                 color = GreenMid,
                 textAlign = TextAlign.Center,
