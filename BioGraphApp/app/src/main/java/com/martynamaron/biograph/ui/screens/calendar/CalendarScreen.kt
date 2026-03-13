@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -41,14 +43,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.martynamaron.biograph.BioGraphApplication
+import com.martynamaron.biograph.R
 import com.martynamaron.biograph.ui.components.CalendarDay
 import com.martynamaron.biograph.ui.components.InsightsPanel
+import com.martynamaron.biograph.ui.theme.MyApplicationTheme
 import com.martynamaron.biograph.viewmodel.CalendarViewModel
 import com.martynamaron.biograph.viewmodel.InsightViewModel
 import java.time.DayOfWeek
@@ -97,7 +104,18 @@ fun CalendarScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("BioGraph") },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(R.drawable.black_logo),
+                            contentDescription = "BioGraph logo",
+                            modifier = Modifier.size(width = 24.dp, height = 30.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("BioGraph", style = MaterialTheme.typography.titleLarge)
+                    }
+                },
                 actions = {
                     IconButton(onClick = onNavigateToDataTypes) {
                         Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Data Types")
@@ -251,5 +269,28 @@ private fun CalendarGrid(
                 Box(modifier = Modifier.size(48.dp))
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Composable
+private fun CalendarTopAppBarPreview() {
+    MyApplicationTheme {
+        TopAppBar(
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = painterResource(R.drawable.black_logo),
+                        contentDescription = "BioGraph logo",
+                        modifier = Modifier.size(width = 24.dp, height = 30.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("BioGraph", style = MaterialTheme.typography.titleLarge)
+                }
+            },
+            actions = {}
+        )
     }
 }

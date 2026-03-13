@@ -18,10 +18,6 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -34,9 +30,9 @@ import com.martynamaron.biograph.viewmodel.InsightPeriod
 @Composable
 fun InsightsPanel(
     state: InsightPanelState,
+    modifier: Modifier = Modifier,
     selectedPeriod: InsightPeriod = InsightPeriod.LAST_3_MONTHS,
     onPeriodSelected: (InsightPeriod) -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     if (state is InsightPanelState.Hidden) return
 
@@ -75,7 +71,7 @@ fun InsightsPanel(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp),
+                .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (targetState) {
