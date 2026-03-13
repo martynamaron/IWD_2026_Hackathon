@@ -6,20 +6,33 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -45,6 +58,43 @@ fun InsightsPanel(
     onSortModeSelected: (InsightSortMode) -> Unit = {},
 ) {
     if (state is InsightPanelState.Hidden) return
+
+    var showInfoSheet by remember { mutableStateOf<InsightSortMode?>(null) }
+
+    if (showInfoSheet != null) {
+        @OptIn(ExperimentalMaterial3Api::class)
+        ModalBottomSheet(
+            onDismissRequest = { showInfoSheet = null },
+            sheetState = rememberModalBottomSheetState()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 24.dp, end = 24.dp, bottom = 32.dp)
+            ) {
+                Text(
+                    text = when (showInfoSheet) {
+                        InsightSortMode.BY_STRENGTH -> "By Strength"
+                        InsightSortMode.BY_DATA_TYPE -> "By Data Type"
+                        else -> ""
+                    },
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                Text(
+                    text = when (showInfoSheet) {
+                        InsightSortMode.BY_STRENGTH -> "Sorts insights by how strong the correlation is. " +
+                            "Strong correlations appear first — these are the patterns most consistently found in your data."
+                        InsightSortMode.BY_DATA_TYPE -> "Groups insights by the data types involved. " +
+                            "This lets you see all patterns related to a specific thing you track, like sleep or exercise."
+                        else -> ""
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
 
     Column(modifier = modifier.fillMaxWidth()) {
         // Time period tabs
@@ -73,28 +123,45 @@ fun InsightsPanel(
         if (state is InsightPanelState.Success) {
             val modes = InsightSortMode.entries
             val selectedModeIndex = modes.indexOf(sortMode)
-            SingleChoiceSegmentedButtonRow(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
             ) {
-                modes.forEachIndexed { index, mode ->
-                    SegmentedButton(
-                        selected = index == selectedModeIndex,
-                        onClick = { onSortModeSelected(mode) },
-                        shape = SegmentedButtonDefaults.itemShape(
-                            index = index,
-                            count = modes.size
-                        )
-                    ) {
-                        Text(
-                            text = when (mode) {
-                                InsightSortMode.BY_STRENGTH -> "By Strength"
-                                InsightSortMode.BY_DATA_TYPE -> "By Data Type"
-                            },
-                            style = MaterialTheme.typography.labelMedium
-                        )
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    modes.forEachIndexed { index, mode ->
+                        SegmentedButton(
+                            selected = index == selectedModeIndex,
+                            onClick = { onSortModeSelected(mode) },
+                            shape = SegmentedButtonDefaults.itemShape(
+                                index = index,
+                                count = modes.size
+                            )
+                        ) {
+                            Text(
+                                text = when (mode) {
+                                    InsightSortMode.BY_STRENGTH -> "By Strength"
+                                    InsightSortMode.BY_DATA_TYPE -> "By Data Type"
+                                },
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        }
                     }
+                }
+                IconButton(
+                    onClick = { showInfoSheet = sortMode },
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Info,
+                        contentDescription = "Sort mode info",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
         }
