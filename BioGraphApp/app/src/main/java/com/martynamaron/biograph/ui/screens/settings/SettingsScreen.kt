@@ -116,7 +116,7 @@ fun SettingsScreen(
                     scope.launch {
                         withContext(Dispatchers.IO) {
                             val types = app.dataTypeRepository.getAllFlow().first()
-                            MockDataGenerator(app.dataTypeRepository, app.dailyEntryRepository)
+                            MockDataGenerator(app.dataTypeRepository, app.dailyEntryRepository, app.multipleChoiceRepository)
                                 .generate(types)
                         }
                         isGenerating = false

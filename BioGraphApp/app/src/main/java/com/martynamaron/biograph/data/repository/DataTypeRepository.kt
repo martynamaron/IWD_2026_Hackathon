@@ -1,12 +1,18 @@
 package com.martynamaron.biograph.data.repository
 
+import com.martynamaron.biograph.data.InputType
 import com.martynamaron.biograph.data.local.DataTypeDao
 import com.martynamaron.biograph.data.local.DataTypeEntity
 import kotlinx.coroutines.flow.Flow
 
-class DataTypeRepository(private val dao: DataTypeDao) {
+class DataTypeRepository(
+    private val dao: DataTypeDao,
+    private val dailyEntryRepository: DailyEntryRepository? = null
+) {
 
     fun getAllFlow(): Flow<List<DataTypeEntity>> = dao.getAllFlow()
+
+    suspend fun getById(id: Long): DataTypeEntity? = dao.getById(id)
 
     suspend fun getCount(): Int = dao.getCount()
 
@@ -29,5 +35,15 @@ class DataTypeRepository(private val dao: DataTypeDao) {
 
     suspend fun delete(dataType: DataTypeEntity) {
         dao.delete(dataType)
+    }
+
+    suspend fun migrateDataTypeToScale(dataTypeId: Long) {
+        val entryRepo = requireNotNull(dailyEntryRepository) {
+            "DailyEntryRepository required for migration"
+        }
+        entryRepo.deleteAllForDataType(dataTypeId)
+        val existing = dao.getById(dataTypeId)
+            ?: throw IllegalArgumentException("Data type $dataTypeId not found")
+        dao.update(existing.copy(inputType = InputType.SCALE.name))
     }
 }

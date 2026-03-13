@@ -57,6 +57,9 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation("androidx.compose.material:material-icons-extended")
 
+    // Emoji Picker
+    implementation("androidx.emoji2:emoji2-emojipicker:1.5.0")
+
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

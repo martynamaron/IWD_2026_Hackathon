@@ -6,7 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "daily_entries",
+    tableName = "multiple_choice_options",
     foreignKeys = [
         ForeignKey(
             entity = DataTypeEntity::class,
@@ -15,14 +15,12 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [
-        Index(value = ["date", "dataTypeId"], unique = true),
-        Index(value = ["dataTypeId"])
-    ]
+    indices = [Index(value = ["dataTypeId"])]
 )
-data class DailyEntryEntity(
+data class MultipleChoiceOptionEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val date: String,
     val dataTypeId: Long,
-    val scaleValue: Int? = null
+    val emoji: String,
+    val label: String,
+    val sortOrder: Int = 0
 )
