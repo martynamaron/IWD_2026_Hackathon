@@ -8,6 +8,13 @@ Built with **Jetpack Compose** and **Kotlin**, BioGraph lets you define custom d
 
 ## Features
 
+<p align="center">
+  <img src="screenshots/onboarding.png" width="24%" />
+  <img src="screenshots/empty_calendar.png" width="24%" />
+  <img src="screenshots/add_data_type.png" width="24%" />
+  <img src="screenshots/populated_calendar.png" width="24%" />
+</p>
+
 ### Custom Data Types
 Define anything you want to track using an emoji and a short description. Three input types are supported:
 - **Toggle** — simple yes/no (e.g., 💊 Medication taken)
@@ -28,14 +35,13 @@ An insights panel on the Calendar screen analyses your tracked data and surfaces
 
 All insights are strictly observational — no medical advice is ever provided.
 
+![BioGraph generated insights](screenshots/bioGraph_generated_insights.gif)
+
 ### Onboarding
 First-time users are guided through selecting from pre-defined tracking suggestions (Health, Medication, Mood, Energy Levels, Exercise, Period Bleeding) to get started quickly.
 
 ### Mock Data Generation
 A built-in demo tool generates 3 or 6 months of realistic sample data with embedded health correlations (e.g., missed medication → dizziness, exercise → fatigue adaptation over time, menstrual cycle patterns). This showcases the app's insight capabilities without requiring weeks of real tracking.
-
-### Brand Theme
-A custom green colour palette with the BioGraph leaf logo, using the **Syne** typeface for a modern, nature-inspired look.
 
 ## Tech Stack
 
